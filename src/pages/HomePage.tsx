@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon, MailIcon } from "@/components/icons";
-import heroPhoto from "@/assets/skate-hero.webp";
+import heroPhoto from "@/assets/home/hero.jpg";
 import conteudoPhoto from "@/assets/home/conteudo.jpg";
 import mosaicoClutch from "@/assets/home/mosaico-clutch.jpg";
 import mosaicoEveryone from "@/assets/home/mosaico-everyone.jpg";
@@ -240,7 +240,9 @@ function Newsletter() {
           </button>
         </form>
       </div>
-      <img src={newsletterPhoto} alt="" className={styles.newsletterPhoto} />
+      <div className={styles.newsletterMedia}>
+        <img src={newsletterPhoto} alt="" className={styles.newsletterPhoto} />
+      </div>
     </section>
   );
 }
