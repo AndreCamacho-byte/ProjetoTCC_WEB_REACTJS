@@ -1,0 +1,35 @@
+.logo {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-variation-settings: "opsz" 72;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--color-black);
+}
+
+.md {
+  font-size: 2.25rem;
+}
+
+.lg {
+  font-size: clamp(3.5rem, 17vw, 4.5rem);
+}
+
+.dot {
+  font-size: 0.35em;
+  margin-left: 0.04em;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #333333;
+  white-space: nowrap;
+}
+
+.inverted {
+  color: var(--color-white);
+}

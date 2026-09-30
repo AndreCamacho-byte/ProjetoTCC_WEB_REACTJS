@@ -10,4 +10,11 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    // Em desenvolvimento, as chamadas para /api vão para o backend local.
+    // Na AWS quem faz esse papel é o Nginx (location /api no main.tf).
+    proxy: {
+      "/api": "http://localhost:3000",
+    },
+  },
 });
