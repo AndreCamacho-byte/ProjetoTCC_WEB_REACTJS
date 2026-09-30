@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { FormAlert } from "@/components/FormAlert";
 import { TextField } from "@/components/TextField";
@@ -13,8 +13,11 @@ type Field = "name" | "email" | "password";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signIn } = useAuth();
-  const [values, setValues] = useState({ name: "", email: "", password: "" });
+  // O formulário "Come Ride With Us" da home manda o email já digitado
+  const initialEmail = (location.state as { email?: string } | null)?.email ?? "";
+  const [values, setValues] = useState({ name: "", email: initialEmail, password: "" });
   const [errors, setErrors] = useState<FormErrors<Field>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
