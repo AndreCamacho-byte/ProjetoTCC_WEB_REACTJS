@@ -2,7 +2,9 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { PublicOnlyRoute } from "./components/RouteGuards";
 import { NAV_LINKS } from "./components/SiteHeader";
 import { SiteLayout } from "./layouts/SiteLayout";
+import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
+import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -35,6 +37,16 @@ function App() {
           </PublicOnlyRoute>
         }
       />
+      <Route
+        path="/verifique-email"
+        element={
+          <PublicOnlyRoute>
+            <CheckEmailPage />
+          </PublicOnlyRoute>
+        }
+      />
+      {/* Sem PublicOnlyRoute: ao confirmar, a pessoa já fica logada e vê a mensagem de sucesso aqui */}
+      <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

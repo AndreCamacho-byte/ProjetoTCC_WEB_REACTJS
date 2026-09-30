@@ -22,6 +22,9 @@ export function validateNewPassword(password: string) {
 export function getErrorMessage(error: unknown) {
   if (!(error instanceof ApiError)) return "Algo deu errado. Tente novamente.";
 
+  if (error.code === "EMAIL_NOT_VERIFIED") return "Confirme seu email antes de entrar.";
+  if (error.code === "INVALID_TOKEN") return "Este link é inválido ou expirou. Peça um novo email de confirmação.";
+
   switch (error.status) {
     case 0:
       return error.message;
