@@ -305,8 +305,8 @@
 
 .tileWord {
   position: absolute;
-  left: 14px;
-  bottom: -0.18em;
+  left: 20px;
+  bottom: 16px;
   font-size: clamp(2rem, 3.4vw, 2.75rem);
   font-weight: 800;
   line-height: 1;

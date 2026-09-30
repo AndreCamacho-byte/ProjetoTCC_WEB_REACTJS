@@ -1,4 +1,5 @@
 .page {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
@@ -25,14 +26,39 @@
   filter: grayscale(1) contrast(1.05);
 }
 
+/* Camadas sobre a foto: sombra embaixo (para o texto) e degradê até o fundo do formulário */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero::before {
+  z-index: 1;
+  background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+.hero::after {
+  z-index: 2;
+  background: linear-gradient(
+    to right,
+    rgba(249, 247, 245, 0) 45%,
+    rgba(249, 247, 245, 0.35) 65%,
+    rgba(249, 247, 245, 0.8) 85%,
+    var(--brand-offwhite) 100%
+  );
+}
+
 .heroContent {
   position: relative;
+  z-index: 3;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   padding: 40px 48px;
-  background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7) 100%);
 }
 
 .heroHeadline {
@@ -50,7 +76,35 @@
 .content {
   display: flex;
   justify-content: center;
-  padding: 56px 16px 24px;
+  padding: 76px 16px 24px;
+}
+
+.backButton {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 14px 8px 8px;
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-pill);
+  background: var(--brand-offwhite);
+  color: var(--brand-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.backButton:hover {
+  background: var(--brand-sand);
+}
+
+.backButton:focus-visible {
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 2px;
 }
 
 .column {
@@ -138,6 +192,12 @@
 
   .hero {
     display: block;
+  }
+
+  .backButton {
+    top: 24px;
+    left: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   }
 
   .content {

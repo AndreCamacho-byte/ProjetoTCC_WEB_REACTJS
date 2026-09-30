@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import heroPhoto from "@/assets/skate-hero.webp";
+import { ChevronLeftIcon } from "@/components/icons";
 import { Logo, Tagline } from "@/components/Logo";
 import styles from "./AuthLayout.module.css";
 
@@ -15,8 +16,24 @@ type AuthLayoutProps = {
 // Layout das telas de login e cadastro.
 // Celular: igual ao mockup (logo, card e link). Desktop: foto à esquerda e formulário à direita.
 export function AuthLayout({ title, subtitle, children, switcher }: AuthLayoutProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Volta para a página anterior do site. Se a pessoa abriu o login direto por um link
+  // (sem página anterior no Clutch), leva para a home.
+  function goBack() {
+    if (location.key !== "default") navigate(-1);
+    else navigate("/");
+  }
+
   return (
     <div className={styles.page}>
+      {/* Fica no canto superior esquerdo da tela (sobre a foto no desktop) */}
+      <button type="button" className={styles.backButton} onClick={goBack}>
+        <ChevronLeftIcon size={18} strokeWidth={2.5} />
+        Voltar
+      </button>
+
       <aside className={styles.hero}>
         <img src={heroPhoto} alt="" className={styles.heroPhoto} />
         <div className={styles.heroContent}>
