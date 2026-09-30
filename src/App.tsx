@@ -1,40 +1,24 @@
-import type { ReactNode } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { useAuth } from "./hooks/useAuth";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { PublicOnlyRoute } from "./components/RouteGuards";
+import { NAV_LINKS } from "./components/SiteHeader";
+import { SiteLayout } from "./layouts/SiteLayout";
+import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 
-// Só deixa entrar quem está logado; os outros vão para o login
-function PrivateRoute({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
-  const location = useLocation();
-
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
-  return children;
-}
-
-// Login e cadastro não fazem sentido para quem já está logado
-function PublicOnlyRoute({ children }: { children: ReactNode }) {
-  const { user, loading } = useAuth();
-
-  if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
-  return children;
-}
-
 function App() {
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <HomePage />
-          </PrivateRoute>
-        }
-      />
+      {/* Páginas com cabeçalho e rodapé do site */}
+      <Route element={<SiteLayout />}>
+        <Route path="/" element={<HomePage />} />
+        {NAV_LINKS.map((link) => (
+          <Route key={link.to} path={link.to} element={<ComingSoonPage title={link.label} />} />
+        ))}
+        <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
+      </Route>
+
       <Route
         path="/login"
         element={

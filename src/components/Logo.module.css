@@ -4,7 +4,7 @@
   font-variation-settings: "opsz" 72;
   letter-spacing: -0.035em;
   line-height: 1;
-  color: var(--color-black);
+  color: var(--brand-ink);
 }
 
 .md {
@@ -31,5 +31,5 @@
 }
 
 .inverted {
-  color: var(--color-white);
+  color: var(--brand-offwhite);
 }
