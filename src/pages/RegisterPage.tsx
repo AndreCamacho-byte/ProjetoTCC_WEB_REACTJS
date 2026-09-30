@@ -52,20 +52,20 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Create Account"
-      subtitle="Join the Clutch crew"
+      title="Criar conta"
+      subtitle="Entre para a crew do Clutch"
       switcher={
         <>
-          <span>Already have an account?</span>
-          <Link to="/login">Sign in</Link>
+          <span>Já tem uma conta?</span>
+          <Link to="/login">Entrar</Link>
         </>
       }
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {formError && <FormAlert>{formError}</FormAlert>}
         <TextField
-          label="Name"
-          placeholder="Your name"
+          label="Nome"
+          placeholder="Seu nome"
           autoComplete="name"
           value={values.name}
           onChange={(e) => update("name", e.target.value)}
@@ -74,14 +74,14 @@ export function RegisterPage() {
         <TextField
           label="Email"
           type="email"
-          placeholder="you@email.com"
+          placeholder="voce@email.com"
           autoComplete="email"
           value={values.email}
           onChange={(e) => update("email", e.target.value)}
           error={errors.email}
         />
         <TextField
-          label="Password"
+          label="Senha"
           type="password"
           placeholder="••••••••"
           autoComplete="new-password"
@@ -90,7 +90,7 @@ export function RegisterPage() {
           error={errors.password}
         />
         <Button type="submit" loading={loading} className={styles.submit}>
-          Create Account
+          Criar conta
         </Button>
       </form>
     </AuthLayout>

@@ -7,8 +7,8 @@
   padding: 0 24px;
   border: none;
   border-radius: var(--radius-pill);
-  background: var(--color-black);
-  color: var(--color-white);
+  background: var(--brand-red);
+  color: var(--brand-offwhite);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -20,7 +20,7 @@
 }
 
 .button:hover:not(:disabled) {
-  background: #2a2a2a;
+  background: var(--brand-red-hover);
 }
 
 .button:active:not(:disabled) {
@@ -28,7 +28,7 @@
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--color-black);
+  outline: 2px solid var(--brand-ink);
   outline-offset: 3px;
 }
 

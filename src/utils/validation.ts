@@ -6,32 +6,32 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Mesmas regras do backend (src/controllers/auth.controller.ts), para avisar antes de enviar
 export function validateName(name: string) {
-  if (name.trim().length < 2) return "Enter your name";
+  if (name.trim().length < 2) return "Informe seu nome";
 }
 
 export function validateEmail(email: string) {
-  if (!email.trim()) return "Enter your email";
-  if (!EMAIL_REGEX.test(email.trim())) return "Enter a valid email";
+  if (!email.trim()) return "Informe seu email";
+  if (!EMAIL_REGEX.test(email.trim())) return "Informe um email válido";
 }
 
 export function validateNewPassword(password: string) {
-  if (password.length < 8) return "Password must be at least 8 characters";
+  if (password.length < 8) return "A senha precisa ter pelo menos 8 caracteres";
 }
 
 // Converte o erro da API em uma mensagem para mostrar no formulário
 export function getErrorMessage(error: unknown) {
-  if (!(error instanceof ApiError)) return "Something went wrong. Try again.";
+  if (!(error instanceof ApiError)) return "Algo deu errado. Tente novamente.";
 
   switch (error.status) {
     case 0:
       return error.message;
     case 401:
-      return "Wrong email or password";
+      return "Email ou senha incorretos";
     case 409:
-      return "This email is already registered";
+      return "Este email já está cadastrado";
     case 503:
-      return "Our servers are taking a break. Try again in a moment.";
+      return "Nossos servidores estão fora do ar. Tente de novo em instantes.";
     default:
-      return "Something went wrong. Try again.";
+      return "Algo deu errado. Tente novamente.";
   }
 }

@@ -13,7 +13,7 @@ export function Button({ loading = false, disabled, children, className, ...prop
       aria-busy={loading || undefined}
       {...props}
     >
-      {loading ? <span className={styles.spinner} aria-label="Loading" /> : children}
+      {loading ? <span className={styles.spinner} aria-label="Carregando" /> : children}
     </button>
   );
 }
