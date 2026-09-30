@@ -1,17 +1,53 @@
+/* Identidade visual do Clutch: preto e branco, contraste alto, tipografia marcante */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --color-black: #0a0a0a;
+  --color-white: #ffffff;
+  --color-text: #111111;
+  --color-text-muted: #555555;
+  --color-label: #b3b3b3;
+  --color-input-bg: #f3f3f3;
+  --color-input-bg-focus: #ececec;
+  --color-placeholder: #9a9a9a;
+  --color-error: #d92d20;
+  --color-error-bg: #fef3f2;
+
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+  --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  font-family: var(--font-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #0f172a;
-  color: #f8fafc;
+  min-height: 100%;
+  background: var(--color-white);
 }
 
-.hello-world {
-  text-align: center;
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
 }
