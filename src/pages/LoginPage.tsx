@@ -2,9 +2,11 @@ import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { FormAlert } from "@/components/FormAlert";
+import { ResendVerification } from "@/components/ResendVerification";
 import { TextField } from "@/components/TextField";
 import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
+import { ApiError } from "@/services/api";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail, type FormErrors } from "@/utils/validation";
 import styles from "./AuthForm.module.css";
@@ -18,6 +20,8 @@ export function LoginPage() {
   const [values, setValues] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<FormErrors<Field>>({});
   const [formError, setFormError] = useState("");
+  // Email da conta que tentou entrar sem ter confirmado (mostra o aviso com "Reenviar email")
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Se o usuário foi mandado para o login ao tentar abrir uma página protegida, volta para ela depois
@@ -31,6 +35,7 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError("");
+    setUnverifiedEmail("");
 
     const nextErrors: FormErrors<Field> = {
       email: validateEmail(values.email),
@@ -44,7 +49,11 @@ export function LoginPage() {
       signIn(await authService.login(values));
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      setFormError(getErrorMessage(error));
+      if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
+        setUnverifiedEmail(values.email.trim());
+      } else {
+        setFormError(getErrorMessage(error));
+      }
     } finally {
       setLoading(false);
     }
@@ -63,6 +72,15 @@ export function LoginPage() {
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         {formError && <FormAlert>{formError}</FormAlert>}
+        {unverifiedEmail && (
+          <div className={styles.notice} role="alert">
+            <p>
+              <strong>Confirme seu email antes de entrar.</strong> Enviamos um link para {unverifiedEmail} quando
+              você criou a conta.
+            </p>
+            <ResendVerification email={unverifiedEmail} />
+          </div>
+        )}
         <TextField
           label="Email"
           type="email"

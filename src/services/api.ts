@@ -16,6 +16,8 @@ export class ApiError extends Error {
     message: string,
     public readonly status: number,
     public readonly details: FieldError[] = [],
+    // Código do erro enviado pelo backend (ex.: EMAIL_NOT_VERIFIED)
+    public readonly code?: string,
   ) {
     super(message);
     this.name = "ApiError";
@@ -42,7 +44,7 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new ApiError(data?.error ?? "Algo deu errado", response.status, data?.details ?? []);
+    throw new ApiError(data?.error ?? "Algo deu errado", response.status, data?.details ?? [], data?.code);
   }
 
   return data as T;

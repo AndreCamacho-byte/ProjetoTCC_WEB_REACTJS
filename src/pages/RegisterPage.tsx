@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { FormAlert } from "@/components/FormAlert";
 import { TextField } from "@/components/TextField";
-import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail, validateName, validateNewPassword, type FormErrors } from "@/utils/validation";
@@ -14,7 +13,6 @@ type Field = "name" | "email" | "password";
 export function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
   // O formulário "Come Ride With Us" da home manda o email já digitado
   const initialEmail = (location.state as { email?: string } | null)?.email ?? "";
   const [values, setValues] = useState({ name: "", email: initialEmail, password: "" });
@@ -41,8 +39,9 @@ export function RegisterPage() {
 
     setLoading(true);
     try {
-      signIn(await authService.register(values));
-      navigate("/", { replace: true });
+      // A conta nasce sem confirmação: em vez de entrar, vai para a tela "Confira seu email"
+      const { email } = await authService.register(values);
+      navigate("/verifique-email", { replace: true, state: { email } });
     } catch (error) {
       setFormError(getErrorMessage(error));
     } finally {
