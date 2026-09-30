@@ -34,7 +34,7 @@ export function LoginPage() {
 
     const nextErrors: FormErrors<Field> = {
       email: validateEmail(values.email),
-      password: values.password ? undefined : "Enter your password",
+      password: values.password ? undefined : "Informe sua senha",
     };
     setErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
@@ -52,12 +52,12 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Good to see you on board again"
+      title="Entrar"
+      subtitle="Que bom te ver de novo"
       switcher={
         <>
-          <span>New to Clutch?</span>
-          <Link to="/register">Create account</Link>
+          <span>Ainda não tem conta?</span>
+          <Link to="/register">Criar conta</Link>
         </>
       }
     >
@@ -66,14 +66,14 @@ export function LoginPage() {
         <TextField
           label="Email"
           type="email"
-          placeholder="you@email.com"
+          placeholder="voce@email.com"
           autoComplete="email"
           value={values.email}
           onChange={(e) => update("email", e.target.value)}
           error={errors.email}
         />
         <TextField
-          label="Password"
+          label="Senha"
           type="password"
           placeholder="••••••••"
           autoComplete="current-password"
@@ -82,7 +82,7 @@ export function LoginPage() {
           error={errors.password}
         />
         <Button type="submit" loading={loading} className={styles.submit}>
-          Sign in
+          Entrar
         </Button>
       </form>
     </AuthLayout>

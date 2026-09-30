@@ -36,13 +36,13 @@ export async function api<T>(path: string, options: { method?: string; body?: un
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     });
   } catch {
-    throw new ApiError("Could not reach the server. Check your connection.", 0);
+    throw new ApiError("Não foi possível conectar ao servidor. Verifique sua conexão.", 0);
   }
 
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new ApiError(data?.error ?? "Something went wrong", response.status, data?.details ?? []);
+    throw new ApiError(data?.error ?? "Algo deu errado", response.status, data?.details ?? []);
   }
 
   return data as T;

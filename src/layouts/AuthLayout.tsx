@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import heroPhoto from "@/assets/skate-hero.webp";
 import { Logo, Tagline } from "@/components/Logo";
 import styles from "./AuthLayout.module.css";
@@ -21,9 +22,9 @@ export function AuthLayout({ title, subtitle, children, switcher }: AuthLayoutPr
         <div className={styles.heroContent}>
           <div>
             <p className={styles.heroHeadline}>
-              Find your spot.
+              Ache seu spot.
               <br />
-              Find your crew.
+              Ache sua crew.
             </p>
             <Tagline inverted />
           </div>
@@ -33,7 +34,9 @@ export function AuthLayout({ title, subtitle, children, switcher }: AuthLayoutPr
       <main className={styles.content}>
         <div className={styles.column}>
           <header className={styles.brand}>
-            <Logo />
+            <Link to="/" className={styles.brandLink} aria-label="Clutch, página inicial">
+              <Logo />
+            </Link>
             <Tagline />
           </header>
 
@@ -46,8 +49,8 @@ export function AuthLayout({ title, subtitle, children, switcher }: AuthLayoutPr
           <div className={styles.switcher}>{switcher}</div>
 
           <p className={styles.legal}>
-            By continuing you agree to our <a href="#">Terms</a> <span aria-hidden>•</span>{" "}
-            <a href="#">Privacy</a>
+            Ao continuar, você concorda com os nossos <a href="#">Termos</a> <span aria-hidden>•</span>{" "}
+            <a href="#">Privacidade</a>
           </p>
         </div>
       </main>

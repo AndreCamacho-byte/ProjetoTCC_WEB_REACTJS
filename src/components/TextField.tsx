@@ -34,7 +34,7 @@ export function TextField({ label, error, type = "text", ...inputProps }: TextFi
             type="button"
             className={styles.toggle}
             onClick={() => setShowPassword((value) => !value)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
           >
             {showPassword ? <EyeOffIcon /> : <EyeIcon />}
           </button>
