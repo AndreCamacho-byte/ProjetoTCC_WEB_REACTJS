@@ -43,6 +43,8 @@
 
 .list a {
   text-decoration: none;
+  /* emails longos quebram de linha em telas estreitas em vez de vazar */
+  overflow-wrap: anywhere;
 }
 
 .list a:hover {
