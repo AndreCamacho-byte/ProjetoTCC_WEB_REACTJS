@@ -3,13 +3,15 @@ import { FacebookIcon, InstagramIcon, MailIcon, TwitterIcon, YoutubeIcon } from 
 import { Logo } from "./Logo";
 import styles from "./SiteFooter.module.css";
 
+const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
+
 // Links das redes sociais: troque "#" pelos endereços reais quando existirem
 const SOCIAL_LINKS = [
   { label: "Instagram", href: "#", Icon: InstagramIcon },
   { label: "Twitter", href: "#", Icon: TwitterIcon },
   { label: "YouTube", href: "#", Icon: YoutubeIcon },
   { label: "Facebook", href: "#", Icon: FacebookIcon },
-  { label: "Email", href: "mailto:contato@example.com", Icon: MailIcon },
+  { label: "Email", href: `mailto:${CONTACT_EMAIL}`, Icon: MailIcon },
 ];
 
 export function SiteFooter() {
@@ -34,11 +36,11 @@ export function SiteFooter() {
 
           <div>
             <h2 className={styles.title}>Contato</h2>
-            {/* Dados provisórios do mockup: troque pelos contatos oficiais do projeto */}
             <ul className={styles.list}>
-              <li>São Paulo</li>
-              <li>(11) 90000-0000</li>
-              <li><a href="mailto:contato@example.com">contato@example.com</a></li>
+              <li>São Paulo, SP</li>
+              <li>
+                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+              </li>
             </ul>
           </div>
         </div>
