@@ -21,6 +21,24 @@
   color: var(--color-text-muted);
 }
 
+.forgotLink {
+  align-self: flex-end;
+  margin-top: -8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-wine);
+}
+
+.success {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: #e8f4ec;
+  color: #1f6f43;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
 /* Campo do código de 6 dígitos */
 .codeField {
   display: flex;

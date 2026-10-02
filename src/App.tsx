@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { AgeGate } from "./components/AgeGate";
 import { AdminRoute, PrivateRoute, PublicOnlyRoute } from "./components/RouteGuards";
 import { NAV_LINKS } from "./components/SiteHeader";
 import { SiteLayout } from "./layouts/SiteLayout";
@@ -7,9 +8,14 @@ import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+
+// Áreas com idade mínima de 12 anos: spots (Explorar), encontros (Eventos) e marketplace
+const AGE_RESTRICTED = ["/explorar", "/eventos", "/market"];
 
 function App() {
   return (
@@ -18,7 +24,19 @@ function App() {
       <Route element={<SiteLayout />}>
         <Route path="/" element={<HomePage />} />
         {NAV_LINKS.map((link) => (
-          <Route key={link.to} path={link.to} element={<ComingSoonPage title={link.label} />} />
+          <Route
+            key={link.to}
+            path={link.to}
+            element={
+              AGE_RESTRICTED.includes(link.to) ? (
+                <AgeGate area={link.label}>
+                  <ComingSoonPage title={link.label} />
+                </AgeGate>
+              ) : (
+                <ComingSoonPage title={link.label} />
+              )
+            }
+          />
         ))}
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
         <Route
@@ -55,6 +73,16 @@ function App() {
           </PublicOnlyRoute>
         }
       />
+      <Route
+        path="/esqueci-senha"
+        element={
+          <PublicOnlyRoute>
+            <ForgotPasswordPage />
+          </PublicOnlyRoute>
+        }
+      />
+      {/* Sem PublicOnlyRoute: quem está logado em outro aparelho também pode abrir o link do email */}
+      <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
       <Route
         path="/verifique-email"
         element={

@@ -14,6 +14,18 @@ export function validateEmail(email: string) {
   if (!EMAIL_REGEX.test(email.trim())) return "Informe um email válido";
 }
 
+export function validateBirthDate(birthDate: string) {
+  if (!birthDate) return "Informe sua data de nascimento";
+  if (birthDate > todayIso()) return "A data não pode estar no futuro";
+  if (birthDate < "1900-01-01") return "Informe uma data válida";
+}
+
+// Hoje no formato AAAA-MM-DD (o mesmo do campo de data), no fuso do navegador
+export function todayIso() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+
 export function validateNewPassword(password: string) {
   if (password.length < 8) return "A senha precisa ter pelo menos 8 caracteres";
 }

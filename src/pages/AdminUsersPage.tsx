@@ -3,7 +3,8 @@ import { SearchIcon } from "@/components/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { adminService, type UserPage, type UserUpdate } from "@/services/admin";
 import type { User } from "@/types/user";
-import { getErrorMessage } from "@/utils/validation";
+import { ageFrom } from "@/utils/age";
+import { getErrorMessage, todayIso } from "@/utils/validation";
 import { ApiError } from "@/services/api";
 import styles from "./AdminUsersPage.module.css";
 
@@ -84,6 +85,7 @@ export function AdminUsersPage() {
               <th>Email</th>
               <th>Função</th>
               <th>Email confirmado</th>
+              <th>Idade</th>
               <th>Criado em</th>
               <th>
                 <span className={styles.srOnly}>Ações</span>
@@ -104,6 +106,7 @@ export function AdminUsersPage() {
                   </span>
                 </td>
                 <td>{user.emailVerifiedAt ? "Sim" : "Não"}</td>
+                <td>{user.birthDate ? `${ageFrom(user.birthDate)} anos` : "Não verificada"}</td>
                 <td>{dateFormat.format(new Date(user.createdAt))}</td>
                 <td className={styles.actions}>
                   <button type="button" className={styles.linkButton} onClick={() => setEditing(user)}>
@@ -121,14 +124,14 @@ export function AdminUsersPage() {
             ))}
             {data && data.users.length === 0 && (
               <tr>
-                <td colSpan={6} className={styles.empty}>
+                <td colSpan={7} className={styles.empty}>
                   Nenhum usuário encontrado.
                 </td>
               </tr>
             )}
             {!data && loading && (
               <tr>
-                <td colSpan={6} className={styles.empty}>
+                <td colSpan={7} className={styles.empty}>
                   Carregando...
                 </td>
               </tr>
@@ -215,6 +218,8 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
   const [username, setUsername] = useState(user.username);
   const [role, setRole] = useState(user.role);
   const [emailVerified, setEmailVerified] = useState(Boolean(user.emailVerifiedAt));
+  const originalBirthDate = user.birthDate?.slice(0, 10) ?? "";
+  const [birthDate, setBirthDate] = useState(originalBirthDate);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -228,6 +233,7 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
     if (username.trim().toLowerCase() !== user.username) changes.username = username.trim().toLowerCase();
     if (role !== user.role) changes.role = role;
     if (emailVerified !== Boolean(user.emailVerifiedAt)) changes.emailVerified = emailVerified;
+    if (birthDate !== originalBirthDate) changes.birthDate = birthDate || null;
     if (Object.keys(changes).length === 0) return onClose();
 
     setSaving(true);
@@ -265,6 +271,11 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
             <option value="ADMIN">Administrador</option>
           </select>
           {isMe && <small>Você não pode tirar a sua própria função de administrador.</small>}
+        </label>
+        <label>
+          Data de nascimento
+          <input type="date" max={todayIso()} value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+          <small>Em branco = idade não verificada (spots e marketplace bloqueados).</small>
         </label>
         <label className={styles.checkbox}>
           <input type="checkbox" checked={emailVerified} onChange={(e) => setEmailVerified(e.target.checked)} />

@@ -6,6 +6,9 @@ export const accountService = {
   updateProfile: (data: { name?: string; username?: string }) =>
     api<User>("/users/me", { method: "PATCH", body: data }),
 
+  // Só para contas antigas, que ainda não têm data de nascimento (formato AAAA-MM-DD)
+  setBirthDate: (birthDate: string) => api<User>("/users/me/birth-date", { method: "PUT", body: { birthDate } }),
+
   // `image` é a foto já recortada, em JPEG (data URL em base64)
   setAvatar: (image: string) => api<User>("/users/me/avatar", { method: "PUT", body: { image } }),
 
