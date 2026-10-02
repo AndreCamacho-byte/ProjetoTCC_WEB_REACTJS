@@ -120,6 +120,11 @@ function UserMenu() {
         <div className={styles.dropdown}>
           <p className={styles.userName}>{user.name}</p>
           <p className={styles.userHandle}>@{user.username}</p>
+          {user.role === "ADMIN" && (
+            <Link to="/admin" className={styles.menuLink} onClick={() => setOpen(false)}>
+              Painel admin
+            </Link>
+          )}
           <button type="button" className={styles.signOut} onClick={signOut}>
             Sair
           </button>

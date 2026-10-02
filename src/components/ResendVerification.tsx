@@ -28,7 +28,7 @@ export function ResendVerification({ email, startWithCooldown = false }: ResendV
     setStatus(null);
     try {
       await authService.resendVerification(email);
-      setStatus({ type: "ok", text: "Pronto! Enviamos um novo link. Confira também a caixa de spam." });
+      setStatus({ type: "ok", text: "Pronto! Enviamos um novo código. Confira também a caixa de spam." });
       setSecondsLeft(COOLDOWN_SECONDS);
     } catch (error) {
       setStatus({ type: "error", text: getErrorMessage(error) });

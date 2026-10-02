@@ -1,7 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { PublicOnlyRoute } from "./components/RouteGuards";
+import { AdminRoute, PublicOnlyRoute } from "./components/RouteGuards";
 import { NAV_LINKS } from "./components/SiteHeader";
 import { SiteLayout } from "./layouts/SiteLayout";
+import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
@@ -19,6 +20,14 @@ function App() {
           <Route key={link.to} path={link.to} element={<ComingSoonPage title={link.label} />} />
         ))}
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminUsersPage />
+            </AdminRoute>
+          }
+        />
       </Route>
 
       <Route
