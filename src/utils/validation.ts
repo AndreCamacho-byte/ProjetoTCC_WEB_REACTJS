@@ -37,6 +37,9 @@ export function getErrorMessage(error: unknown) {
   if (error.code === "EMAIL_NOT_VERIFIED") return "Confirme seu email antes de entrar.";
   // Para o código de 6 dígitos, o backend já manda a mensagem certa (incorreto, vencido ou muitas tentativas)
   if (error.code === "INVALID_CODE" || error.code === "TOO_MANY_ATTEMPTS") return error.message;
+  // Limite de tentativas: o servidor já diz em quanto tempo dá para tentar de novo
+  if (error.code === "RATE_LIMITED") return error.message;
+  if (error.code === "SESSION_EXPIRED") return "Sua sessão foi encerrada. Entre de novo.";
   if (error.code === "INVALID_TOKEN") return "Este link é inválido ou expirou. Peça um novo email de confirmação.";
 
   switch (error.status) {

@@ -9,6 +9,9 @@ export const tokenStorage = {
   clear: () => localStorage.removeItem(TOKEN_KEY),
 };
 
+// Evento disparado quando o servidor encerra a sessão (o AuthProvider escuta)
+export const SESSION_EXPIRED_EVENT = "clutch:session-expired";
+
 export type FieldError = { field: string; message: string };
 
 export class ApiError extends Error {
@@ -44,6 +47,12 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+    // O servidor avisou que este login não vale mais (senha trocada em outro aparelho, conta excluída...):
+    // apaga o token e avisa o site, que volta para o estado "deslogado"
+    if (data?.code === "SESSION_EXPIRED") {
+      tokenStorage.clear();
+      window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
+    }
     throw new ApiError(data?.error ?? "Algo deu errado", response.status, data?.details ?? [], data?.code);
   }
 

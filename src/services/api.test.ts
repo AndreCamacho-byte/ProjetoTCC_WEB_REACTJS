@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ApiError, api, tokenStorage } from "./api";
+import { ApiError, SESSION_EXPIRED_EVENT, api, tokenStorage } from "./api";
 
 // Resposta simulada do servidor
 const respond = (status: number, body: unknown) =>
@@ -103,5 +103,39 @@ describe("tokenStorage", () => {
     expect(tokenStorage.get()).toBe("abc");
     tokenStorage.clear();
     expect(tokenStorage.get()).toBeNull();
+  });
+});
+
+describe("sessão encerrada pelo servidor", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("apaga o token e avisa o site quando o servidor responde SESSION_EXPIRED", async () => {
+    tokenStorage.set("token-antigo");
+    const onExpired = vi.fn();
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    fetchMock.mockResolvedValue(respond(401, { error: "Sessão encerrada.", code: "SESSION_EXPIRED" }));
+
+    await expect(api("/auth/me")).rejects.toMatchObject({ status: 401, code: "SESSION_EXPIRED" });
+
+    expect(tokenStorage.get()).toBeNull();
+    expect(onExpired).toHaveBeenCalledOnce();
+    window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
+  });
+
+  it("mantém o token em outros erros 401, como senha errada", async () => {
+    tokenStorage.set("meu-token");
+    fetchMock.mockResolvedValue(respond(401, { error: "Senha incorreta", code: "WRONG_PASSWORD" }));
+
+    await expect(api("/users/me", { method: "DELETE", body: {} })).rejects.toMatchObject({ status: 401 });
+
+    expect(tokenStorage.get()).toBe("meu-token");
   });
 });

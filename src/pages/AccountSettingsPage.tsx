@@ -6,7 +6,8 @@ import { ApiError } from "@/services/api";
 import type { User } from "@/types/user";
 import { MIN_AGE, ageFrom, ageStatus, formatBirthDate } from "@/utils/age";
 import { fileToAvatar } from "@/utils/image";
-import { getErrorMessage, todayIso, validateBirthDate } from "@/utils/validation";
+import { getErrorMessage, todayIso, validateBirthDate, validateNewPassword } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AccountSettingsPage.module.css";
 
 type Feedback = { type: "ok" | "error"; text: string } | null;
@@ -15,6 +16,7 @@ type Feedback = { type: "ok" | "error"; text: string } | null;
 function errorText(error: unknown) {
   if (error instanceof ApiError) {
     if (error.code === "WRONG_PASSWORD") return "Senha incorreta.";
+    if (error.code === "RATE_LIMITED") return error.message;
     if (error.details.length > 0) return error.details.map((d) => d.message).join(" ");
     if (error.status === 409 || error.status === 413 || error.status === 400) return error.message;
     return getErrorMessage(error);
@@ -25,6 +27,8 @@ function errorText(error: unknown) {
 
 // Configurações da conta: foto de perfil, nome, @username e exclusão da conta
 export function AccountSettingsPage() {
+  usePageTitle("Configurações");
+
   const { user } = useAuth();
   // A rota é protegida, então aqui sempre há usuário (a checagem é só para o TypeScript)
   if (!user) return null;
@@ -38,6 +42,7 @@ export function AccountSettingsPage() {
 
       <AvatarSection user={user} />
       <ProfileSection user={user} />
+      <PasswordSection />
       <AgeSection user={user} />
       <DangerSection />
     </div>
@@ -187,6 +192,64 @@ function ProfileSection({ user }: { user: User }) {
         <Message feedback={feedback} />
         <button type="submit" className={styles.primary} disabled={!changed || saving}>
           {saving ? "Salvando..." : "Salvar alterações"}
+        </button>
+      </form>
+    </section>
+  );
+}
+
+// Troca de senha por quem está logado
+function PasswordSection() {
+  const { signIn } = useAuth();
+  const [values, setValues] = useState({ current: "", next: "", confirm: "" });
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+
+  const update = (field: keyof typeof values) => (event: ChangeEvent<HTMLInputElement>) =>
+    setValues((current) => ({ ...current, [field]: event.target.value }));
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setFeedback(null);
+
+    if (!values.current) return setFeedback({ type: "error", text: "Informe a senha atual." });
+    const invalid = validateNewPassword(values.next);
+    if (invalid) return setFeedback({ type: "error", text: invalid + "." });
+    if (values.next !== values.confirm) return setFeedback({ type: "error", text: "As senhas não são iguais." });
+
+    setSaving(true);
+    try {
+      // Guarda o token novo: os logins antigos (inclusive em outros aparelhos) deixam de valer
+      signIn(await accountService.changePassword(values.current, values.next));
+      setValues({ current: "", next: "", confirm: "" });
+      setFeedback({ type: "ok", text: "Senha alterada. Os outros aparelhos foram desconectados." });
+    } catch (error) {
+      setFeedback({ type: "error", text: errorText(error) });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <section className={styles.card}>
+      <h2>Senha</h2>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <label>
+          Senha atual
+          <input type="password" autoComplete="current-password" value={values.current} onChange={update("current")} />
+        </label>
+        <label>
+          Nova senha
+          <input type="password" autoComplete="new-password" value={values.next} onChange={update("next")} />
+          <small>Pelo menos 8 caracteres.</small>
+        </label>
+        <label>
+          Confirmar nova senha
+          <input type="password" autoComplete="new-password" value={values.confirm} onChange={update("confirm")} />
+        </label>
+        <Message feedback={feedback} />
+        <button type="submit" className={styles.primary} disabled={saving}>
+          {saving ? "Salvando..." : "Trocar senha"}
         </button>
       </form>
     </section>

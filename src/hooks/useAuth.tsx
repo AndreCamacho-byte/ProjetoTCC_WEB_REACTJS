@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { ApiError, tokenStorage } from "@/services/api";
+import { ApiError, SESSION_EXPIRED_EVENT, tokenStorage } from "@/services/api";
 import { authService } from "@/services/auth";
 import type { AuthResponse, User } from "@/types/user";
 
@@ -30,6 +30,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error instanceof ApiError && (error.status === 401 || error.status === 404)) tokenStorage.clear();
       })
       .finally(() => setLoading(false));
+  }, []);
+
+  // Se o servidor encerrar a sessão no meio do uso, o site passa a tratar a pessoa como deslogada
+  useEffect(() => {
+    const onExpired = () => setUser(null);
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired);
   }, []);
 
   const signIn = useCallback(({ user, token }: AuthResponse) => {
