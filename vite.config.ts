@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
@@ -16,5 +16,12 @@ export default defineConfig({
     proxy: {
       "/api": "http://localhost:3000",
     },
+  },
+  // Testes unitários (npm test): rodam em um navegador simulado (jsdom)
+  test: {
+    environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
+    setupFiles: ["src/test/setup.ts"],
+    mockReset: true,
   },
 });
