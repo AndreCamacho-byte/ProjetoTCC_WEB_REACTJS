@@ -144,6 +144,40 @@
   align-self: flex-start;
 }
 
+/* ---------- Idade ---------- */
+
+.ageLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px !important;
+  font-weight: 600;
+}
+
+.badgeOk,
+.badgeWarn {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badgeOk {
+  background: #e8f4ec;
+  color: #1f6f43;
+}
+
+.badgeWarn {
+  background: #fdf0d5;
+  color: #8a5a00;
+}
+
+.note {
+  font-size: 0.875rem !important;
+  color: var(--color-text-muted);
+}
+
 /* ---------- Botões ---------- */
 
 .primary,

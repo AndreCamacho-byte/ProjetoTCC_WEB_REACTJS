@@ -4,8 +4,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { accountService } from "@/services/account";
 import { ApiError } from "@/services/api";
 import type { User } from "@/types/user";
+import { MIN_AGE, ageFrom, ageStatus, formatBirthDate } from "@/utils/age";
 import { fileToAvatar } from "@/utils/image";
-import { getErrorMessage } from "@/utils/validation";
+import { getErrorMessage, todayIso, validateBirthDate } from "@/utils/validation";
 import styles from "./AccountSettingsPage.module.css";
 
 type Feedback = { type: "ok" | "error"; text: string } | null;
@@ -37,6 +38,7 @@ export function AccountSettingsPage() {
 
       <AvatarSection user={user} />
       <ProfileSection user={user} />
+      <AgeSection user={user} />
       <DangerSection />
     </div>
   );
@@ -185,6 +187,74 @@ function ProfileSection({ user }: { user: User }) {
         <Message feedback={feedback} />
         <button type="submit" className={styles.primary} disabled={!changed || saving}>
           {saving ? "Salvando..." : "Salvar alterações"}
+        </button>
+      </form>
+    </section>
+  );
+}
+
+// Data de nascimento e a regra de idade dos spots e do marketplace
+function AgeSection({ user }: { user: User }) {
+  const { updateUser } = useAuth();
+  const [birthDate, setBirthDate] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const status = ageStatus(user);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    const invalid = validateBirthDate(birthDate);
+    if (invalid) return setFeedback({ type: "error", text: invalid + "." });
+
+    setSaving(true);
+    setFeedback(null);
+    try {
+      updateUser(await accountService.setBirthDate(birthDate));
+    } catch (error) {
+      setFeedback({ type: "error", text: errorText(error) });
+      setSaving(false);
+    }
+  }
+
+  if (user.birthDate) {
+    return (
+      <section className={styles.card}>
+        <h2>Idade</h2>
+        <p className={styles.ageLine}>
+          <span className={status === "OK" ? styles.badgeOk : styles.badgeWarn}>
+            {status === "OK" ? "Verificada" : `Menor de ${MIN_AGE} anos`}
+          </span>
+          Nascimento em {formatBirthDate(user.birthDate)} ({ageFrom(user.birthDate)} anos)
+        </p>
+        <p className={styles.note}>
+          {status === "OK"
+            ? "Spots, encontros e marketplace estão liberados para você."
+            : `Spots, encontros e marketplace são liberados a partir dos ${MIN_AGE} anos.`}{" "}
+          A data de nascimento não pode ser alterada por aqui.
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section className={styles.card}>
+      <h2>Idade</h2>
+      <p className={styles.ageLine}>
+        <span className={styles.badgeWarn}>Não verificada</span>
+      </p>
+      <p className={styles.note}>
+        Sua conta foi criada antes de pedirmos a data de nascimento. Informe a sua para liberar os spots, os encontros
+        e o marketplace (a partir dos {MIN_AGE} anos).
+      </p>
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <label>
+          Data de nascimento
+          <input type="date" max={todayIso()} value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+          <small>Confira antes de salvar: depois não dá para alterar.</small>
+        </label>
+        <Message feedback={feedback} />
+        <button type="submit" className={styles.primary} disabled={!birthDate || saving}>
+          {saving ? "Salvando..." : "Salvar data de nascimento"}
         </button>
       </form>
     </section>

@@ -5,17 +5,25 @@ import { FormAlert } from "@/components/FormAlert";
 import { TextField } from "@/components/TextField";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
-import { getErrorMessage, validateEmail, validateName, validateNewPassword, type FormErrors } from "@/utils/validation";
+import {
+  getErrorMessage,
+  todayIso,
+  validateBirthDate,
+  validateEmail,
+  validateName,
+  validateNewPassword,
+  type FormErrors,
+} from "@/utils/validation";
 import styles from "./AuthForm.module.css";
 
-type Field = "name" | "email" | "password" | "confirmPassword";
+type Field = "name" | "email" | "birthDate" | "password" | "confirmPassword";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
   // O formulário "Come Ride With Us" da home manda o email já digitado
   const initialEmail = (location.state as { email?: string } | null)?.email ?? "";
-  const [values, setValues] = useState({ name: "", email: initialEmail, password: "", confirmPassword: "" });
+  const [values, setValues] = useState({ name: "", email: initialEmail, birthDate: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<FormErrors<Field>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +40,7 @@ export function RegisterPage() {
     const nextErrors: FormErrors<Field> = {
       name: validateName(values.name),
       email: validateEmail(values.email),
+      birthDate: validateBirthDate(values.birthDate),
       password: validateNewPassword(values.password),
       confirmPassword: values.confirmPassword === values.password ? undefined : "As senhas não são iguais",
     };
@@ -41,7 +50,12 @@ export function RegisterPage() {
     setLoading(true);
     try {
       // A conta nasce sem confirmação: em vez de entrar, vai para a tela "Confira seu email"
-      const { email } = await authService.register({ name: values.name, email: values.email, password: values.password });
+      const { email } = await authService.register({
+        name: values.name,
+        email: values.email,
+        birthDate: values.birthDate,
+        password: values.password,
+      });
       navigate("/verifique-email", { replace: true, state: { email, justSent: true } });
     } catch (error) {
       setFormError(getErrorMessage(error));
@@ -79,6 +93,15 @@ export function RegisterPage() {
           value={values.email}
           onChange={(e) => update("email", e.target.value)}
           error={errors.email}
+        />
+        <TextField
+          label="Data de nascimento"
+          type="date"
+          autoComplete="bday"
+          max={todayIso()}
+          value={values.birthDate}
+          onChange={(e) => update("birthDate", e.target.value)}
+          error={errors.birthDate}
         />
         <TextField
           label="Senha"

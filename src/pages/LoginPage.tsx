@@ -25,7 +25,10 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Se o usuário foi mandado para o login ao tentar abrir uma página protegida, volta para ela depois
-  const redirectTo = (location.state as { from?: string } | null)?.from ?? "/";
+  const state = location.state as { from?: string; message?: string } | null;
+  const redirectTo = state?.from ?? "/";
+  // Aviso vindo de outra tela (ex.: "Senha alterada" depois de redefinir a senha)
+  const successMessage = state?.message;
 
   function update(field: Field, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -71,6 +74,11 @@ export function LoginPage() {
       }
     >
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        {successMessage && (
+          <p className={styles.success} role="status">
+            {successMessage}
+          </p>
+        )}
         {formError && <FormAlert>{formError}</FormAlert>}
         {unverifiedEmail && (
           <div className={styles.notice} role="alert">
@@ -102,6 +110,9 @@ export function LoginPage() {
           onChange={(e) => update("password", e.target.value)}
           error={errors.password}
         />
+        <Link to="/esqueci-senha" className={styles.forgotLink}>
+          Esqueci minha senha
+        </Link>
         <Button type="submit" loading={loading} className={styles.submit}>
           Entrar
         </Button>

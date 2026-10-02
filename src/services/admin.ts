@@ -8,6 +8,8 @@ export type UserUpdate = {
   username?: string;
   role?: User["role"];
   emailVerified?: boolean;
+  // AAAA-MM-DD, ou null para apagar
+  birthDate?: string | null;
 };
 
 // Rotas exclusivas de administradores (o backend recusa com 403 se a conta não for admin)
