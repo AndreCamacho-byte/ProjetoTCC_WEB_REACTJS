@@ -12,6 +12,18 @@ export function PrivateRoute({ children }: { children: ReactNode }) {
   return children;
 }
 
+// Só para administradores. Quem não é admin volta para a home
+// (o backend também confere a função em cada rota de /admin, então isto é só para a navegação)
+export function AdminRoute({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (user.role !== "ADMIN") return <Navigate to="/" replace />;
+  return children;
+}
+
 // Login e cadastro não fazem sentido para quem já está logado
 export function PublicOnlyRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();

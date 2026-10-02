@@ -41,7 +41,7 @@ export function RegisterPage() {
     try {
       // A conta nasce sem confirmação: em vez de entrar, vai para a tela "Confira seu email"
       const { email } = await authService.register(values);
-      navigate("/verifique-email", { replace: true, state: { email } });
+      navigate("/verifique-email", { replace: true, state: { email, justSent: true } });
     } catch (error) {
       setFormError(getErrorMessage(error));
     } finally {

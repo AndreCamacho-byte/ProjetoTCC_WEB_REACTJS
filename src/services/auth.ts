@@ -12,6 +12,10 @@ export const authService = {
   // Confirma o email com o token do link e já devolve o login
   verifyEmail: (token: string) => api<AuthResponse>("/auth/verify-email", { method: "POST", body: { token } }),
 
+  // Confirma o email com o código de 6 dígitos e já devolve o login
+  verifyCode: (email: string, code: string) =>
+    api<AuthResponse>("/auth/verify-code", { method: "POST", body: { email, code } }),
+
   resendVerification: (email: string) =>
     api<{ message: string }>("/auth/resend-verification", { method: "POST", body: { email } }),
 

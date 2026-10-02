@@ -23,6 +23,8 @@ export function getErrorMessage(error: unknown) {
   if (!(error instanceof ApiError)) return "Algo deu errado. Tente novamente.";
 
   if (error.code === "EMAIL_NOT_VERIFIED") return "Confirme seu email antes de entrar.";
+  // Para o código de 6 dígitos, o backend já manda a mensagem certa (incorreto, vencido ou muitas tentativas)
+  if (error.code === "INVALID_CODE" || error.code === "TOO_MANY_ATTEMPTS") return error.message;
   if (error.code === "INVALID_TOKEN") return "Este link é inválido ou expirou. Peça um novo email de confirmação.";
 
   switch (error.status) {

@@ -21,6 +21,53 @@
   color: var(--color-text-muted);
 }
 
+/* Campo do código de 6 dígitos */
+.codeField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.codeField label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-label);
+}
+
+.codeInput {
+  width: 100%;
+  height: 60px;
+  /* O padding da esquerda compensa o espaçamento depois do último dígito, para o código ficar centralizado */
+  padding: 0 0 0 0.45em;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-input-bg);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.45em;
+  text-align: center;
+  outline: none;
+}
+
+.codeInput::placeholder {
+  color: #cfcfcf;
+}
+
+.codeInput:focus {
+  background: var(--color-input-bg-focus);
+  border-color: var(--brand-ink);
+}
+
+.noticeLink {
+  align-self: center;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--brand-wine);
+}
+
 /* Aviso de "confirme seu email" na tela de login, com o botão de reenviar */
 .notice {
   display: flex;

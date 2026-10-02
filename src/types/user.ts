@@ -9,6 +9,8 @@ export type User = {
   bio: string | null;
   skateLevel: SkateLevel | null;
   role: "USER" | "ADMIN";
+  // Data em que o email foi confirmado (null = ainda não confirmou)
+  emailVerifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

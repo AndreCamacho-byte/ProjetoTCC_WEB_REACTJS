@@ -75,9 +75,12 @@ export function LoginPage() {
         {unverifiedEmail && (
           <div className={styles.notice} role="alert">
             <p>
-              <strong>Confirme seu email antes de entrar.</strong> Enviamos um link para {unverifiedEmail} quando
+              <strong>Confirme seu email antes de entrar.</strong> Enviamos um código para {unverifiedEmail} quando
               você criou a conta.
             </p>
+            <Link to="/verifique-email" state={{ email: unverifiedEmail }} className={styles.noticeLink}>
+              Digitar o código
+            </Link>
             <ResendVerification email={unverifiedEmail} />
           </div>
         )}
