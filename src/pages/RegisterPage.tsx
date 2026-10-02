@@ -14,11 +14,14 @@ import {
   validateNewPassword,
   type FormErrors,
 } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 type Field = "name" | "email" | "birthDate" | "password" | "confirmPassword";
 
 export function RegisterPage() {
+  usePageTitle("Criar conta");
+
   const navigate = useNavigate();
   const location = useLocation();
   // O formulário "Come Ride With Us" da home manda o email já digitado

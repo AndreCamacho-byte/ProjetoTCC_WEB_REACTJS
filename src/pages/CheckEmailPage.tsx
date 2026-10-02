@@ -8,11 +8,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 // Tela mostrada logo depois do cadastro: a pessoa digita o código de 6 dígitos que chegou por email
 // (ou clica no botão do próprio email, que abre a página /confirmar-email).
 export function CheckEmailPage() {
+  usePageTitle("Confirmar email");
+
   const location = useLocation();
   const navigate = useNavigate();
   const { signIn } = useAuth();

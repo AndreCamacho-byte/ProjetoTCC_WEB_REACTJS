@@ -6,10 +6,13 @@ import { TextField } from "@/components/TextField";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 // "Esqueci minha senha": pede o email e envia o link para criar uma nova senha
 export function ForgotPasswordPage() {
+  usePageTitle("Esqueci minha senha");
+
   const [email, setEmail] = useState("");
   const [fieldError, setFieldError] = useState<string>();
   const [formError, setFormError] = useState("");

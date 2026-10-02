@@ -7,12 +7,15 @@ import { AuthLayout } from "@/layouts/AuthLayout";
 import { ApiError } from "@/services/api";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateNewPassword, type FormErrors } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 type Field = "password" | "confirmPassword";
 
 // Página aberta pelo link do email de "esqueci minha senha" (/redefinir-senha?token=...)
 export function ResetPasswordPage() {
+  usePageTitle("Criar nova senha");
+
   const [params] = useSearchParams();
   const token = params.get("token");
   const navigate = useNavigate();

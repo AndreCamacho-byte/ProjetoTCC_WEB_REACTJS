@@ -9,11 +9,14 @@ import { AuthLayout } from "@/layouts/AuthLayout";
 import { ApiError } from "@/services/api";
 import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail, type FormErrors } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 type Field = "email" | "password";
 
 export function LoginPage() {
+  usePageTitle("Entrar");
+
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn } = useAuth();

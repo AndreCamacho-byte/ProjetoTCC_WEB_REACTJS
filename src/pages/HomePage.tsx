@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeftIcon, ChevronRightIcon, MailIcon } from "@/components/icons";
+import { useAuth } from "@/hooks/useAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import heroPhoto from "@/assets/home/hero.jpg";
 import conteudoPhoto from "@/assets/home/conteudo.jpg";
 import mosaicoClutch from "@/assets/home/mosaico-clutch.jpg";
@@ -53,6 +55,8 @@ const PARTNERS = [
 ];
 
 export function HomePage() {
+  usePageTitle();
+
   return (
     <div className={styles.page}>
       <Hero />
@@ -66,6 +70,8 @@ export function HomePage() {
 }
 
 function Hero() {
+  const { user } = useAuth();
+
   return (
     <section className={styles.hero}>
       <img src={heroPhoto} alt="" className={styles.heroPhoto} />
@@ -75,9 +81,16 @@ function Hero() {
           Encontre spots, marque sessões com a sua crew e vista a cultura street. Tudo em um só lugar.
         </p>
         <div className={styles.heroActions}>
-          <Link to="/register" className={styles.buttonPrimary}>
-            Participe
-          </Link>
+          {/* Quem já tem conta não precisa de "Participe": vai direto para os spots */}
+          {user ? (
+            <Link to="/explorar" className={styles.buttonPrimary}>
+              Explorar spots
+            </Link>
+          ) : (
+            <Link to="/register" className={styles.buttonPrimary}>
+              Participe
+            </Link>
+          )}
           <a href="#servicos" className={styles.buttonSecondary}>
             Saiba Mais
           </a>
@@ -209,6 +222,7 @@ function Content() {
 
 function Newsletter() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
 
   // Leva para o cadastro já com o email preenchido
@@ -222,23 +236,32 @@ function Newsletter() {
       <div className={styles.newsletterText}>
         <p className={styles.kicker}>No Time to Waste</p>
         <h2 className={styles.newsletterTitle}>Come Ride With Us</h2>
-        <form className={styles.newsletterForm} onSubmit={handleSubmit}>
-          <label className={styles.emailField}>
-            <span className={styles.emailIcon}>
-              <MailIcon size={16} />
-            </span>
-            <input
-              type="email"
-              placeholder="seu e-mail aqui"
-              aria-label="Seu e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <button type="submit" className={styles.buttonBlock}>
-            participar
-          </button>
-        </form>
+        {user ? (
+          // Quem já está logado não precisa informar o email: o convite leva para os encontros
+          <div className={styles.newsletterForm}>
+            <Link to="/eventos" className={styles.buttonBlock}>
+              ver encontros
+            </Link>
+          </div>
+        ) : (
+          <form className={styles.newsletterForm} onSubmit={handleSubmit}>
+            <label className={styles.emailField}>
+              <span className={styles.emailIcon}>
+                <MailIcon size={16} />
+              </span>
+              <input
+                type="email"
+                placeholder="seu e-mail aqui"
+                aria-label="Seu e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            <button type="submit" className={styles.buttonBlock}>
+              participar
+            </button>
+          </form>
+        )}
       </div>
       <div className={styles.newsletterMedia}>
         <img src={newsletterPhoto} alt="" className={styles.newsletterPhoto} />

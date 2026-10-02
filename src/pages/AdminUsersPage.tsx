@@ -6,6 +6,7 @@ import type { User } from "@/types/user";
 import { ageFrom } from "@/utils/age";
 import { getErrorMessage, todayIso } from "@/utils/validation";
 import { ApiError } from "@/services/api";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AdminUsersPage.module.css";
 
 const dateFormat = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -18,6 +19,8 @@ const adminError = (error: unknown) =>
 
 // Painel do administrador: lista, busca, edita e remove usuários
 export function AdminUsersPage() {
+  usePageTitle("Painel admin");
+
   const { user: me } = useAuth();
   const [data, setData] = useState<UserPage | null>(null);
   const [search, setSearch] = useState("");

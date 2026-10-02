@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { MIN_AGE } from "@/utils/age";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
@@ -9,6 +10,8 @@ const LAST_UPDATE = "2 de outubro de 2026";
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
 // atualize esta página e a data acima.
 export function PrivacyPage() {
+  usePageTitle("Política de Privacidade");
+
   return (
     <article className={styles.page}>
       <header className={styles.header}>

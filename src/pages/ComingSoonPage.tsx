@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 // Página provisória para as seções que ainda vão ser desenvolvidas
 export function ComingSoonPage({ title }: { title: string }) {
+  usePageTitle(title);
+
   return (
     <section
       style={{
