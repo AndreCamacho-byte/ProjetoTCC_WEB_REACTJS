@@ -11,6 +11,7 @@ import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 
@@ -39,6 +40,7 @@ function App() {
           />
         ))}
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
+        <Route path="/privacidade" element={<PrivacyPage />} />
         <Route
           path="/conta"
           element={

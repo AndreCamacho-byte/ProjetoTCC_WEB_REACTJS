@@ -31,6 +31,7 @@ export function SiteFooter() {
               <li><Link to="/comunidade">Comunidade</Link></li>
               <li><Link to="/market">Marketplace</Link></li>
               <li><Link to="/sobre">Sobre nós</Link></li>
+              <li><Link to="/privacidade">Política de Privacidade</Link></li>
             </ul>
           </nav>
 
