@@ -8,14 +8,14 @@ import { authService } from "@/services/auth";
 import { getErrorMessage, validateEmail, validateName, validateNewPassword, type FormErrors } from "@/utils/validation";
 import styles from "./AuthForm.module.css";
 
-type Field = "name" | "email" | "password";
+type Field = "name" | "email" | "password" | "confirmPassword";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
   // O formulário "Come Ride With Us" da home manda o email já digitado
   const initialEmail = (location.state as { email?: string } | null)?.email ?? "";
-  const [values, setValues] = useState({ name: "", email: initialEmail, password: "" });
+  const [values, setValues] = useState({ name: "", email: initialEmail, password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<FormErrors<Field>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,6 +33,7 @@ export function RegisterPage() {
       name: validateName(values.name),
       email: validateEmail(values.email),
       password: validateNewPassword(values.password),
+      confirmPassword: values.confirmPassword === values.password ? undefined : "As senhas não são iguais",
     };
     setErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
@@ -40,7 +41,7 @@ export function RegisterPage() {
     setLoading(true);
     try {
       // A conta nasce sem confirmação: em vez de entrar, vai para a tela "Confira seu email"
-      const { email } = await authService.register(values);
+      const { email } = await authService.register({ name: values.name, email: values.email, password: values.password });
       navigate("/verifique-email", { replace: true, state: { email, justSent: true } });
     } catch (error) {
       setFormError(getErrorMessage(error));
@@ -87,6 +88,15 @@ export function RegisterPage() {
           value={values.password}
           onChange={(e) => update("password", e.target.value)}
           error={errors.password}
+        />
+        <TextField
+          label="Confirmar senha"
+          type="password"
+          placeholder="••••••••"
+          autoComplete="new-password"
+          value={values.confirmPassword}
+          onChange={(e) => update("confirmPassword", e.target.value)}
+          error={errors.confirmPassword}
         />
         <Button type="submit" loading={loading} className={styles.submit}>
           Criar conta
