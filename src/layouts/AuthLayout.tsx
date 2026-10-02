@@ -66,8 +66,11 @@ export function AuthLayout({ title, subtitle, children, switcher }: AuthLayoutPr
           <div className={styles.switcher}>{switcher}</div>
 
           <p className={styles.legal}>
-            Ao continuar, você concorda com os nossos <a href="#">Termos</a> <span aria-hidden>•</span>{" "}
-            <a href="#">Privacidade</a>
+            Ao continuar, você concorda com a nossa{" "}
+            {/* Abre em outra aba para a pessoa não perder o que já digitou no formulário */}
+            <Link to="/privacidade" target="_blank" rel="noopener">
+              Política de Privacidade
+            </Link>
           </p>
         </div>
       </main>
