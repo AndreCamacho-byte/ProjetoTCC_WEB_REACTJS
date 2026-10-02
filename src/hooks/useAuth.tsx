@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { tokenStorage } from "@/services/api";
+import { ApiError, tokenStorage } from "@/services/api";
 import { authService } from "@/services/auth";
 import type { AuthResponse, User } from "@/types/user";
 
@@ -8,6 +8,8 @@ type AuthContextValue = {
   loading: boolean;
   signIn: (response: AuthResponse) => void;
   signOut: () => void;
+  // Troca os dados do usuário logado (ex.: depois de mudar o nome ou a foto)
+  updateUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -22,7 +24,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authService
       .me()
       .then(setUser)
-      .catch(() => tokenStorage.clear())
+      // Só esquece o login se o servidor disser que o token não vale mais.
+      // Se foi uma falha passageira (sem internet, banco fora do ar), o login continua salvo.
+      .catch((error) => {
+        if (error instanceof ApiError && (error.status === 401 || error.status === 404)) tokenStorage.clear();
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -36,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  return <AuthContext.Provider value={{ user, loading, signIn, signOut }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, loading, signIn, signOut, updateUser: setUser }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

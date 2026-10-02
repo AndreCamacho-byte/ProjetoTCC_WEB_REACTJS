@@ -118,6 +118,7 @@
   width: 36px;
   height: 36px;
   padding: 0;
+  overflow: hidden;
   border: 1.5px solid var(--brand-ink);
   border-radius: 50%;
   background: transparent;
@@ -129,9 +130,20 @@
   background: var(--brand-sand);
 }
 
-.initial {
-  font-weight: 700;
-  font-size: 0.9375rem;
+.menuItem {
+  display: block;
+  margin-bottom: 8px;
+  padding: 8px;
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-md);
+  color: var(--brand-ink);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+.menuItem:hover {
+  background: var(--brand-sand);
 }
 
 .userMenu {
