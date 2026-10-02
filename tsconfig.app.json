@@ -23,5 +23,8 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Os testes não entram no build de produção (um erro em teste não impede o deploy).
+  // Eles são conferidos pelo tsconfig.test.json: npm run typecheck:tests
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
 }
