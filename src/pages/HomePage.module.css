@@ -428,6 +428,7 @@
 }
 
 .newsletterText {
+  align-self: center;
   padding: 40px 0;
 }
 
@@ -488,6 +489,8 @@
 /* A foto preenche a altura da faixa sem esticá-la (a altura vem do texto) */
 .newsletterMedia {
   position: relative;
+  /* A altura acompanha a largura, para a foto (que é vertical) mostrar da cabeça ao skate */
+  aspect-ratio: 1.1;
   min-height: 240px;
 }
 
@@ -497,7 +500,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 35%;
+  object-position: center top;
 }
 
 /* ---------- Tablet ---------- */
@@ -601,6 +604,7 @@
 
   /* No celular a foto aparece inteira, na proporção original, em vez de recortada */
   .newsletterMedia {
+    aspect-ratio: auto;
     min-height: 0;
   }
 
