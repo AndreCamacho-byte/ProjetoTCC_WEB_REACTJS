@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { AgeGate } from "./components/AgeGate";
 import { AdminRoute, PrivateRoute, PublicOnlyRoute } from "./components/RouteGuards";
 import { NAV_LINKS } from "./components/SiteHeader";
@@ -11,6 +11,7 @@ import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
@@ -41,6 +42,8 @@ function App() {
         ))}
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
         <Route path="/privacidade" element={<PrivacyPage />} />
+        {/* Qualquer endereço que não existe */}
+        <Route path="*" element={<NotFoundPage />} />
         <Route
           path="/conta"
           element={
@@ -95,7 +98,6 @@ function App() {
       />
       {/* Sem PublicOnlyRoute: ao confirmar, a pessoa já fica logada e vê a mensagem de sucesso aqui */}
       <Route path="/confirmar-email" element={<ConfirmEmailPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

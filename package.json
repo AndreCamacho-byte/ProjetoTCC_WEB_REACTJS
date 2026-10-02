@@ -1,5 +1,5 @@
 {
-  "name": "meu-projeto",
+  "name": "clutch-frontend",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck:tests": "tsc -p tsconfig.test.json"

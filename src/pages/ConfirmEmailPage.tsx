@@ -8,12 +8,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
 import { getErrorMessage } from "@/utils/validation";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
 type Status = { type: "loading" } | { type: "success"; name: string } | { type: "error"; message: string };
 
 // Página aberta pelo link do email (/confirmar-email?token=...)
 export function ConfirmEmailPage() {
+  usePageTitle("Confirmar email");
+
   const [params] = useSearchParams();
   const token = params.get("token");
   const navigate = useNavigate();
