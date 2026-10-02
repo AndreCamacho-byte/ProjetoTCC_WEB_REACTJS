@@ -100,3 +100,16 @@ describe("getErrorMessage", () => {
     );
   });
 });
+
+describe("getErrorMessage: limite de tentativas e sessão", () => {
+  it("repassa o aviso do servidor com o tempo de espera", () => {
+    const error = new ApiError("Muitas tentativas. Tente de novo em 10 minutos.", 429, [], "RATE_LIMITED");
+    expect(getErrorMessage(error)).toBe("Muitas tentativas. Tente de novo em 10 minutos.");
+  });
+
+  it("avisa quando a sessão foi encerrada pelo servidor", () => {
+    expect(getErrorMessage(new ApiError("x", 401, [], "SESSION_EXPIRED"))).toBe(
+      "Sua sessão foi encerrada. Entre de novo.",
+    );
+  });
+});
