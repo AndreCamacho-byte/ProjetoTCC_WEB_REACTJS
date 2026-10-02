@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { Avatar } from "./Avatar";
 import { CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
 import { Logo } from "./Logo";
 import styles from "./SiteHeader.module.css";
@@ -114,12 +115,15 @@ function UserMenu() {
         aria-expanded={open}
         aria-label="Menu da conta"
       >
-        <span className={styles.initial}>{user.name.charAt(0).toUpperCase()}</span>
+        <Avatar user={user} size={33} />
       </button>
       {open && (
         <div className={styles.dropdown}>
           <p className={styles.userName}>{user.name}</p>
           <p className={styles.userHandle}>@{user.username}</p>
+          <Link to="/conta" className={styles.menuItem} onClick={() => setOpen(false)}>
+            Configurações
+          </Link>
           {user.role === "ADMIN" && (
             <Link to="/admin" className={styles.menuLink} onClick={() => setOpen(false)}>
               Painel admin
