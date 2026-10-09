@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { Avatar } from "./Avatar";
-import { CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
+import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
 import { Logo } from "./Logo";
 import styles from "./SiteHeader.module.css";
 
@@ -42,6 +43,7 @@ export function SiteHeader() {
 
         <div className={styles.actions}>
           <SearchForm className={styles.searchDesktop} />
+          <CartLink />
           <UserMenu />
           <button
             type="button"
@@ -64,15 +66,15 @@ function SearchForm({ className }: { className: string }) {
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (query.trim()) navigate(`/explorar?busca=${encodeURIComponent(query.trim())}`);
+    if (query.trim()) navigate(`/market?busca=${encodeURIComponent(query.trim())}`);
   }
 
   return (
     <form role="search" className={[styles.search, className].join(" ")} onSubmit={handleSubmit}>
       <input
         type="search"
-        placeholder="pesquisar..."
-        aria-label="Pesquisar"
+        placeholder="buscar na loja..."
+        aria-label="Buscar na loja"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -80,6 +82,21 @@ function SearchForm({ className }: { className: string }) {
         <SearchIcon size={16} />
       </button>
     </form>
+  );
+}
+
+// Atalho para o carrinho, com a quantidade de itens. Só aparece para quem está logado.
+function CartLink() {
+  const { user } = useAuth();
+  const { cart } = useCart();
+  if (!user) return null;
+
+  const count = cart?.count ?? 0;
+  return (
+    <Link to="/market/carrinho" className={styles.cart} aria-label={count > 0 ? `Carrinho (${count})` : "Carrinho"}>
+      <BagIcon size={20} />
+      {count > 0 && <span className={styles.cartCount}>{count > 99 ? "99+" : count}</span>}
+    </Link>
   );
 }
 
@@ -123,6 +140,9 @@ function UserMenu() {
           <p className={styles.userHandle}>@{user.username}</p>
           <Link to="/conta" className={styles.menuItem} onClick={() => setOpen(false)}>
             Configurações
+          </Link>
+          <Link to="/market/pedidos" className={styles.menuItem} onClick={() => setOpen(false)}>
+            Meus pedidos
           </Link>
           {user.role === "ADMIN" && (
             <Link to="/admin" className={styles.menuLink} onClick={() => setOpen(false)}>

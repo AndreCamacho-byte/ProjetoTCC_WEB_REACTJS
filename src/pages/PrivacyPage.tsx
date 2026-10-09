@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "2 de outubro de 2026";
+const LAST_UPDATE = "9 de outubro de 2026";
 
 // Política de Privacidade. O texto descreve o que o site faz de verdade com os dados:
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
@@ -53,10 +53,18 @@ export function PrivacyPage() {
           <li>
             <strong>Foto de perfil</strong>, se você quiser enviar uma.
           </li>
+          <li>
+            <strong>Endereço de entrega</strong> (nome de quem recebe, CEP, rua, número, complemento, bairro, cidade e
+            estado), quando você fecha um pedido no Market. O endereço fica guardado junto com o pedido.
+          </li>
         </ul>
         <h3>Dados gerados pelo uso</h3>
         <ul>
           <li>Datas de criação da conta e de confirmação do email.</li>
+          <li>
+            <strong>Carrinho e pedidos do Market</strong>: os produtos, tamanhos e quantidades que você escolheu, o
+            valor e a situação de cada pedido.
+          </li>
           <li>
             Códigos e links temporários de confirmação de email e de redefinição de senha, guardados de forma
             embaralhada e apagados depois de usados.
@@ -69,8 +77,10 @@ export function PrivacyPage() {
         <h3>O que não coletamos</h3>
         <p>
           Hoje o Clutch não coleta a sua localização, não usa cookies de publicidade nem ferramentas de rastreamento
-          e não vende dados. Quando as áreas de spots, encontros e marketplace forem lançadas, esta política será
-          atualizada antes de qualquer novo dado ser coletado, e a localização só será usada com a sua permissão.
+          e não vende dados. <strong>O pagamento do Market é simulado</strong>: o site não pede nem guarda número de
+          cartão, dados bancários ou CPF, e nenhum valor é cobrado. Quando as áreas de spots e encontros forem
+          lançadas, esta política será atualizada antes de qualquer novo dado ser coletado, e a localização só será
+          usada com a sua permissão.
         </p>
       </section>
 
@@ -132,7 +142,8 @@ export function PrivacyPage() {
         <p>
           Alguns desses serviços mantêm servidores fora do Brasil, então os seus dados podem ser armazenados em
           outros países. Dentro do Clutch, os administradores do site podem ver o seu nome, email e idade, e podem
-          corrigir ou remover contas para moderar a plataforma.
+          corrigir ou remover contas para moderar a plataforma. Eles também veem os pedidos do Market, com os itens
+          e o endereço de entrega, para acompanhar cada pedido.
         </p>
       </section>
 
@@ -148,7 +159,7 @@ export function PrivacyPage() {
         <h2>7. Por quanto tempo guardamos</h2>
         <p>
           Os seus dados ficam guardados enquanto a sua conta existir. Quando você exclui a conta, apagamos o seu
-          cadastro, a foto de perfil e os conteúdos ligados a ela. Códigos de confirmação e links de redefinição de
+          cadastro, a foto de perfil, o carrinho, os pedidos (com o endereço de entrega) e os conteúdos ligados a ela. Códigos de confirmação e links de redefinição de
           senha expiram sozinhos (em até 24 horas e em 1 hora, respectivamente).
         </p>
       </section>
