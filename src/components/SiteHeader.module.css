@@ -104,8 +104,32 @@
   outline-offset: 1px;
 }
 
-.searchDesktop {
+/* Guarda o lugar da busca no cabeçalho: ela cresce por cima, sem empurrar o menu */
+.searchSlot {
+  position: relative;
+  flex-shrink: 0;
   width: 130px;
+  height: 34px;
+}
+
+.searchDesktop {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+/* Com o mouse em cima (ou digitando), a busca se estica até perto do menu */
+.searchSlot:hover .searchDesktop,
+.searchDesktop:focus-within {
+  width: var(--search-open, 260px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .searchDesktop {
+    transition: none;
+  }
 }
 
 .searchMobile {
@@ -252,7 +276,7 @@
     display: grid;
   }
 
-  .searchDesktop {
+  .searchSlot {
     display: none;
   }
 
