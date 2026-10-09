@@ -18,8 +18,21 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
+  const navRef = useRef<HTMLElement>(null);
+  const searchSlotRef = useRef<HTMLDivElement>(null);
+
   // Fecha o menu do celular ao trocar de página
   useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  // A busca cresce para a esquerda até perto do último link do menu (Eventos).
+  // A largura é medida na hora, porque o espaço livre muda com o tamanho da janela.
+  function measureSearch() {
+    const slot = searchSlotRef.current;
+    const lastLink = navRef.current?.querySelector("a:last-of-type");
+    if (!slot || !lastLink) return;
+    const room = slot.getBoundingClientRect().right - lastLink.getBoundingClientRect().right - 24;
+    slot.style.setProperty("--search-open", `${Math.max(room, slot.offsetWidth)}px`);
+  }
 
   return (
     <header className={styles.header}>
@@ -28,7 +41,7 @@ export function SiteHeader() {
           <Logo size="md" />
         </Link>
 
-        <nav className={[styles.nav, menuOpen && styles.navOpen].filter(Boolean).join(" ")} aria-label="Principal">
+        <nav ref={navRef} className={[styles.nav, menuOpen && styles.navOpen].filter(Boolean).join(" ")} aria-label="Principal">
           {NAV_LINKS.map((link) => (
             <NavLink
               key={link.to}
@@ -42,7 +55,9 @@ export function SiteHeader() {
         </nav>
 
         <div className={styles.actions}>
-          <SearchForm className={styles.searchDesktop} />
+          <div ref={searchSlotRef} className={styles.searchSlot} onMouseEnter={measureSearch} onFocus={measureSearch}>
+            <SearchForm className={styles.searchDesktop} />
+          </div>
           <CartLink />
           <UserMenu />
           <button
