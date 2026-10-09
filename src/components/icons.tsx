@@ -29,6 +29,13 @@ export const SearchIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const BagIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M5 8h14l-1 12H6z" />
+    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+  </Icon>
+);
+
 export const UserIcon = (p: IconProps) => (
   <Icon {...p}>
     <circle cx="12" cy="8" r="4" />

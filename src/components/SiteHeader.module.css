@@ -130,6 +130,36 @@
   background: var(--brand-sand);
 }
 
+.cart {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--brand-ink);
+}
+
+.cart:hover {
+  background: var(--brand-sand);
+}
+
+.cartCount {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-red);
+  color: var(--brand-offwhite);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
 .menuItem {
   display: block;
   margin-bottom: 8px;

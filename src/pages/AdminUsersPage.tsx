@@ -6,6 +6,7 @@ import type { User } from "@/types/user";
 import { ageFrom } from "@/utils/age";
 import { getErrorMessage, todayIso } from "@/utils/validation";
 import { ApiError } from "@/services/api";
+import { AdminTabs } from "@/components/AdminTabs";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AdminUsersPage.module.css";
 
@@ -55,6 +56,7 @@ export function AdminUsersPage() {
 
   return (
     <div className={styles.page}>
+      <AdminTabs />
       <header className={styles.header}>
         <div>
           <p className={styles.kicker}>Administração</p>
@@ -196,7 +198,9 @@ export function AdminUsersPage() {
   );
 }
 
-function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+type DialogProps = { title: string; onClose: () => void; children: ReactNode; wide?: boolean };
+
+export function Dialog({ title, onClose, children, wide = false }: DialogProps) {
   // Fecha com a tecla Esc
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
@@ -206,7 +210,7 @@ function Dialog({ title, onClose, children }: { title: string; onClose: () => vo
 
   return (
     <div className={styles.overlay} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={styles.dialog} role="dialog" aria-modal="true" aria-label={title}>
+      <div className={wide ? `${styles.dialog} ${styles.dialogWide}` : styles.dialog} role="dialog" aria-modal="true" aria-label={title}>
         <h2>{title}</h2>
         {children}
       </div>
@@ -319,8 +323,8 @@ function RemoveUserDialog({ user, onClose, onRemoved }: RemoveProps) {
     <Dialog title="Remover usuário" onClose={onClose}>
       <div className={styles.form}>
         <p>
-          Remover <strong>{user.name}</strong> ({user.email})? A conta e tudo que é dela (posts, comentários, curtidas e
-          encontros) serão apagados. <strong>Não dá para desfazer.</strong>
+          Remover <strong>{user.name}</strong> ({user.email})? A conta e tudo que é dela (posts, comentários, curtidas,
+          encontros e pedidos da loja) serão apagados. <strong>Não dá para desfazer.</strong>
         </p>
         {error && (
           <p className={styles.error} role="alert">

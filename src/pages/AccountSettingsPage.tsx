@@ -331,7 +331,7 @@ function DangerSection() {
     <section className={`${styles.card} ${styles.dangerCard}`}>
       <h2>Excluir conta</h2>
       <p>
-        Apaga a sua conta e tudo que é dela: foto, posts, comentários, curtidas e encontros. Não dá para desfazer.
+        Apaga a sua conta e tudo que é dela: foto, posts, comentários, curtidas, encontros e pedidos da loja. Não dá para desfazer.
       </p>
       <button type="button" className={styles.danger} onClick={() => setOpen(true)}>
         Excluir minha conta

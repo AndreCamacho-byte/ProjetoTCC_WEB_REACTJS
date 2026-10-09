@@ -55,3 +55,12 @@ export function getErrorMessage(error: unknown) {
       return "Algo deu errado. Tente novamente.";
   }
 }
+
+// Para as telas em que o backend já manda a mensagem pronta em português (loja e painel do admin)
+export function apiMessage(error: unknown) {
+  if (error instanceof ApiError) {
+    if (error.details.length > 0) return error.details.map((detail) => detail.message).join(" ");
+    if (error.status >= 400 && error.status < 500 && error.status !== 401) return error.message;
+  }
+  return getErrorMessage(error);
+}
