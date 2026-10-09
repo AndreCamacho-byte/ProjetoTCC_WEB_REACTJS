@@ -112,23 +112,86 @@
   height: 34px;
 }
 
+/* Fechada: volta rápido, mas espera um instante antes (o mouse passando de raspão não faz a barra piscar) */
 .searchDesktop {
   position: absolute;
   top: 0;
   right: 0;
   width: 100%;
-  transition: width 0.3s ease;
+  transition:
+    width 0.32s cubic-bezier(0.4, 0, 0.2, 1) 0.14s,
+    box-shadow 0.3s ease 0.14s,
+    border-color 0.3s ease;
+  will-change: width;
 }
 
-/* Com o mouse em cima (ou digitando), a busca se estica até perto do menu */
+.searchDesktop button {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.searchDesktop input::placeholder {
+  transition: opacity 0.25s ease;
+}
+
+/* Aberta (mouse em cima, digitando ou com texto): desliza até perto do menu.
+   A curva sai rápido e freia no fim, sem quicar. */
 .searchSlot:hover .searchDesktop,
-.searchDesktop:focus-within {
+.searchDesktop:focus-within,
+.searchDesktop:has(input:not(:placeholder-shown)) {
   width: var(--search-open, 260px);
+  box-shadow: 0 8px 24px rgba(29, 29, 30, 0.12);
+  transition:
+    width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease,
+    border-color 0.3s ease;
 }
 
+.searchSlot:hover .searchDesktop button,
+.searchDesktop:focus-within button,
+.searchDesktop:has(input:not(:placeholder-shown)) button {
+  border-color: var(--brand-ink);
+  background: var(--brand-ink);
+  color: var(--brand-offwhite);
+  transform: rotate(90deg);
+}
+
+.searchDesktop button:hover {
+  border-color: var(--brand-red);
+  background: var(--brand-red);
+}
+
+.searchDesktop:focus-within {
+  outline: none;
+  border-color: var(--brand-red);
+  box-shadow:
+    0 8px 24px rgba(29, 29, 30, 0.12),
+    0 0 0 3px rgba(163, 30, 33, 0.14);
+}
+
+.searchDesktop:focus-within input::placeholder {
+  opacity: 0.55;
+}
+
+/* Com as animações do sistema desligadas (prefers-reduced-motion), a barra ainda desliza, só que
+   mais curta e sem o giro do ícone: é um movimento pequeno, que não incomoda quem pediu menos animação. */
 @media (prefers-reduced-motion: reduce) {
-  .searchDesktop {
-    transition: none;
+  .searchSlot:hover .searchDesktop,
+  .searchDesktop:focus-within,
+  .searchDesktop:has(input:not(:placeholder-shown)) {
+    transition:
+      width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  .searchSlot:hover .searchDesktop button,
+  .searchDesktop:focus-within button,
+  .searchDesktop:has(input:not(:placeholder-shown)) button {
+    transform: none;
   }
 }
 

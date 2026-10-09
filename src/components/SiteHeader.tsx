@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
@@ -25,14 +25,24 @@ export function SiteHeader() {
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   // A busca cresce para a esquerda até perto do último link do menu (Eventos).
-  // A largura é medida na hora, porque o espaço livre muda com o tamanho da janela.
-  function measureSearch() {
+  // A largura depende do espaço livre, que muda com o tamanho da janela: por isso é medida
+  // ao abrir a página e a cada mudança de tamanho, e fica pronta antes de o mouse chegar
+  // (assim a animação já começa com o destino certo).
+  const measureSearch = useCallback(() => {
     const slot = searchSlotRef.current;
     const lastLink = navRef.current?.querySelector("a:last-of-type");
     if (!slot || !lastLink) return;
     const room = slot.getBoundingClientRect().right - lastLink.getBoundingClientRect().right - 24;
     slot.style.setProperty("--search-open", `${Math.max(room, slot.offsetWidth)}px`);
-  }
+  }, []);
+
+  useEffect(() => {
+    measureSearch();
+    // As fontes mudam a largura do menu quando terminam de carregar
+    document.fonts?.ready.then(measureSearch);
+    window.addEventListener("resize", measureSearch);
+    return () => window.removeEventListener("resize", measureSearch);
+  }, [measureSearch]);
 
   return (
     <header className={styles.header}>
