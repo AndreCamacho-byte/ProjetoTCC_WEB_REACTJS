@@ -1,0 +1,98 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 56px 16px;
+  background: rgba(15, 15, 16, 0.88);
+  animation: fadeIn 0.18s ease-out;
+}
+
+/* Medidas pela tela (vw/vh): a foto nunca passa da janela, nem em pé nem deitada */
+.image {
+  max-width: min(calc(100vw - 32px), 1080px);
+  max-height: calc(100vh - 112px);
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: zoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Foto de perfil: redonda e de um tamanho que não estoura a qualidade (a foto guardada tem 512 px) */
+.round {
+  width: min(80vw, 80vh, 512px);
+  height: min(80vw, 80vh, 512px);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.close,
+.arrow {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(249, 247, 245, 0.14);
+  color: var(--brand-offwhite);
+  cursor: pointer;
+}
+
+.close:hover,
+.arrow:hover {
+  background: rgba(249, 247, 245, 0.28);
+}
+
+.close {
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+}
+
+.arrow {
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translateY(-50%);
+}
+
+.prev {
+  left: 16px;
+}
+
+.next {
+  right: 16px;
+}
+
+.counter {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  margin: 0;
+  transform: translateX(-50%);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-offwhite);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .image {
+    animation-duration: 0.01s;
+  }
+}

@@ -755,3 +755,55 @@ a.order:hover {
     grid-column: span 2;
   }
 }
+
+/* ---------- Ampliar foto e salvar produto ---------- */
+
+.zoomButton {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.priceRow .productPrice {
+  margin: 0;
+}
+
+.saveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--brand-ink);
+  cursor: pointer;
+}
+
+.saveButton:hover {
+  background: var(--brand-sand);
+}
+
+.saveButtonOn {
+  border-color: var(--brand-wine);
+  background: var(--brand-wine);
+  color: var(--brand-offwhite);
+}
+
+.saveButtonOn:hover {
+  background: var(--brand-red);
+}

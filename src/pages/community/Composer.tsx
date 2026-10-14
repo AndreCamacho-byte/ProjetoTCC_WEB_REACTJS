@@ -9,29 +9,43 @@ import { apiMessage } from "@/utils/validation";
 import styles from "./Community.module.css";
 
 export const MAX_POST_LENGTH = 500;
+export const MAX_POST_PHOTOS = 4;
 
 type Props = { user: User; onPosted: (post: Post) => void };
 
-// Caixa para escrever um post, com foto opcional
+// Caixa para escrever um post, com até 4 fotos
 export function Composer({ user, onPosted }: Props) {
   const [text, setText] = useState("");
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [preparing, setPreparing] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const remaining = MAX_POST_LENGTH - text.length;
-  const canPost = (text.trim().length > 0 || photo !== null) && remaining >= 0 && !busy;
+  const canPost = (text.trim().length > 0 || photos.length > 0) && remaining >= 0 && !busy && !preparing;
 
-  async function handleFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = ""; // permite escolher o mesmo arquivo de novo
-    if (!file) return;
+  async function handleFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = ""; // permite escolher os mesmos arquivos de novo
+    if (files.length === 0) return;
+
     setError("");
+    const room = MAX_POST_PHOTOS - photos.length;
+    if (files.length > room) {
+      setError(`Cada post pode ter até ${MAX_POST_PHOTOS} fotos. Só as primeiras ${room === 1 ? "uma foi adicionada" : `${room} foram adicionadas`}.`);
+    }
+
+    setPreparing(true);
     try {
-      setPhoto(await fileToPostPhoto(file));
+      // Reduz cada foto no próprio navegador, na ordem em que foram escolhidas
+      const ready: string[] = [];
+      for (const file of files.slice(0, room)) ready.push(await fileToPostPhoto(file));
+      setPhotos((current) => [...current, ...ready].slice(0, MAX_POST_PHOTOS));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível abrir essa imagem.");
+    } finally {
+      setPreparing(false);
     }
   }
 
@@ -42,9 +56,9 @@ export function Composer({ user, onPosted }: Props) {
     setBusy(true);
     setError("");
     try {
-      const post = await communityService.createPost(text.trim(), photo ?? undefined);
+      const post = await communityService.createPost(text.trim(), photos);
       setText("");
-      setPhoto(null);
+      setPhotos([]);
       onPosted(post);
     } catch (err) {
       setError(apiMessage(err));
@@ -64,13 +78,22 @@ export function Composer({ user, onPosted }: Props) {
           onChange={(e) => setText(e.target.value)}
         />
 
-        {photo && (
-          <div className={styles.preview}>
-            <img src={photo} alt="Foto escolhida para o post" />
-            <button type="button" className={styles.removePhoto} aria-label="Tirar a foto" onClick={() => setPhoto(null)}>
-              <CloseIcon size={16} />
-            </button>
-          </div>
+        {photos.length > 0 && (
+          <ul className={styles.previews} aria-label="Fotos escolhidas">
+            {photos.map((photo, index) => (
+              <li key={index} className={styles.preview}>
+                <img src={photo} alt={`Foto ${index + 1} escolhida para o post`} />
+                <button
+                  type="button"
+                  className={styles.removePhoto}
+                  aria-label={`Tirar a foto ${index + 1}`}
+                  onClick={() => setPhotos((current) => current.filter((_, i) => i !== index))}
+                >
+                  <CloseIcon size={16} />
+                </button>
+              </li>
+            ))}
+          </ul>
         )}
 
         {error && (
@@ -81,17 +104,23 @@ export function Composer({ user, onPosted }: Props) {
 
         <div className={styles.composerBar}>
           <div className={styles.composerTools}>
-            <button type="button" className={styles.iconButton} disabled={busy} onClick={() => fileInput.current?.click()}>
+            <button
+              type="button"
+              className={styles.iconButton}
+              disabled={busy || preparing || photos.length >= MAX_POST_PHOTOS}
+              onClick={() => fileInput.current?.click()}
+            >
               <ImageIcon size={20} />
-              Foto
+              {preparing ? "Preparando..." : photos.length > 0 ? `Fotos (${photos.length}/${MAX_POST_PHOTOS})` : "Fotos"}
             </button>
             <input
               ref={fileInput}
               type="file"
               accept="image/png,image/jpeg,image/webp"
+              multiple
               className={styles.fileInput}
-              onChange={handleFile}
-              aria-label="Escolher foto para o post"
+              onChange={handleFiles}
+              aria-label="Escolher fotos para o post"
             />
             {text.length > MAX_POST_LENGTH - 100 && (
               <span className={`${styles.counter} ${remaining < 0 ? styles.counterOver : ""}`} aria-live="polite">

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Avatar } from "@/components/Avatar";
+import { Lightbox } from "@/components/Lightbox";
 import { useAuth } from "@/hooks/useAuth";
 import { accountService } from "@/services/account";
 import { ApiError } from "@/services/api";
@@ -64,6 +65,7 @@ function AvatarSection({ user }: { user: User }) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [photoOpen, setPhotoOpen] = useState(false);
 
   async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -99,7 +101,22 @@ function AvatarSection({ user }: { user: User }) {
     <section className={styles.card}>
       <h2>Foto de perfil</h2>
       <div className={styles.avatarRow}>
-        <Avatar user={user} size={96} />
+        {user.avatarUrl ? (
+          <button
+            type="button"
+            className={styles.avatarZoom}
+            aria-label="Ver a sua foto ampliada"
+            title="Ver ampliada"
+            onClick={() => setPhotoOpen(true)}
+          >
+            <Avatar user={user} size={96} />
+          </button>
+        ) : (
+          <Avatar user={user} size={96} />
+        )}
+        {photoOpen && user.avatarUrl && (
+          <Lightbox images={[user.avatarUrl]} alt="Sua foto de perfil" round onClose={() => setPhotoOpen(false)} />
+        )}
         <div className={styles.avatarActions}>
           <input
             ref={fileInput}

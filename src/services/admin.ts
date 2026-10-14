@@ -1,7 +1,9 @@
 import type { User } from "@/types/user";
 import { api } from "./api";
 
-export type UserPage = { users: User[]; total: number; page: number; pageSize: number };
+// No painel, as pessoas aparecem pelo nome e pelo @: o email não vem do servidor
+export type AdminUser = Omit<User, "email">;
+export type UserPage = { users: AdminUser[]; total: number; page: number; pageSize: number };
 
 export type UserUpdate = {
   name?: string;
@@ -22,7 +24,7 @@ export const adminService = {
     return api<UserPage>(`/admin/users?${params}`);
   },
 
-  updateUser: (id: string, data: UserUpdate) => api<User>(`/admin/users/${id}`, { method: "PATCH", body: data }),
+  updateUser: (id: string, data: UserUpdate) => api<AdminUser>(`/admin/users/${id}`, { method: "PATCH", body: data }),
 
   deleteUser: (id: string) => api<null>(`/admin/users/${id}`, { method: "DELETE" }),
 };

@@ -1,21 +1,40 @@
-const AVATAR_SIZE = 256; // lado da foto de perfil, em pixels
+const AVATAR_SIZE = 512; // lado da foto de perfil, em pixels (grande o bastante para ver ampliada)
 const PRODUCT_SIZE = 800; // lado da foto de produto
 const PRODUCT_MAX_BYTES = 560 * 1024; // o servidor aceita até 600 KB por foto
 const POST_MAX_SIDE = 1080; // lado maior da foto de um post
+const MIN_PRODUCT_SIDE = 500; // abaixo disso a foto do produto tende a ficar borrada
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB (limite do arquivo original, antes de reduzir)
 
 // Prepara a foto de perfil no próprio navegador: recorta um quadrado no centro da imagem,
-// reduz para 256x256 e converte para JPEG. Assim o que vai para o servidor é sempre pequeno,
+// reduz para 512x512 e converte para JPEG. Assim o que vai para o servidor é sempre pequeno,
 // qualquer que seja o tamanho da foto escolhida.
 export async function fileToAvatar(file: File): Promise<string> {
   return (await squareCanvas(file, AVATAR_SIZE)).toDataURL("image/jpeg", 0.85);
 }
 
-// Foto de produto: quadrada, 800x800, em JPEG. Se ainda ficar pesada, comprime um pouco mais.
-export async function fileToProductPhoto(file: File): Promise<string> {
-  const canvas = await squareCanvas(file, PRODUCT_SIZE);
+// Foto de produto: quadrada, 800x800, com o produto INTEIRO no meio (sem cortar) e fundo branco
+// nas sobras. Assim todos os anúncios ficam do mesmo tamanho, seja a foto em pé (um shape),
+// deitada ou quadrada. Devolve também se a foto original era pequena (pode ficar borrada).
+export async function fileToProductPhoto(file: File): Promise<{ photo: string; small: boolean }> {
+  checkFile(file);
+  const image = await loadImage(file);
+  const longest = Math.max(image.naturalWidth, image.naturalHeight);
+  // Encaixa o lado maior no quadrado; foto pequena aumenta no máximo 2x (mais que isso fica borrado)
+  const scale = Math.min(PRODUCT_SIZE / longest, 2);
+  const width = Math.round(image.naturalWidth * scale);
+  const height = Math.round(image.naturalHeight * scale);
 
-  return compress(canvas);
+  const canvas = document.createElement("canvas");
+  canvas.width = PRODUCT_SIZE;
+  canvas.height = PRODUCT_SIZE;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Não foi possível processar a imagem neste navegador.");
+
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, PRODUCT_SIZE, PRODUCT_SIZE);
+  context.drawImage(image, (PRODUCT_SIZE - width) / 2, (PRODUCT_SIZE - height) / 2, width, height);
+
+  return { photo: compress(canvas), small: longest < MIN_PRODUCT_SIDE };
 }
 
 // Foto de post: mantém o formato original (em pé, deitada ou quadrada), com o lado maior em até 1080 px

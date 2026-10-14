@@ -1,7 +1,17 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
-import { CommentIcon, HeartIcon, TrashIcon } from "@/components/icons";
+import {
+  BookmarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  CommentIcon,
+  HeartIcon,
+  LinkIcon,
+  ShareIcon,
+  TrashIcon,
+} from "@/components/icons";
+import { Lightbox } from "@/components/Lightbox";
 import { communityService } from "@/services/community";
 import type { Author, Comment, Post } from "@/types/community";
 import { SKATE_LEVEL_LABEL, timeAgo } from "@/utils/format";
@@ -9,6 +19,9 @@ import { apiMessage } from "@/utils/validation";
 import styles from "./Community.module.css";
 
 export const MAX_COMMENT_LENGTH = 300;
+
+// Endereço do post para compartilhar (quem abrir precisa entrar na conta para ver)
+export const postLink = (id: string) => `${window.location.origin}/comunidade/post/${id}`;
 
 // Nome com link para o perfil, @ e nível de skate
 export function AuthorLine({ author, time }: { author: Author; time: string }) {
@@ -25,9 +38,14 @@ export function AuthorLine({ author, time }: { author: Author; time: string }) {
   );
 }
 
-type Props = { post: Post; onDeleted: (id: string) => void };
+type Props = {
+  post: Post;
+  onDeleted: (id: string) => void;
+  // Na tela de salvos, o post sai da lista ao ser tirado dos salvos
+  onUnsaved?: (id: string) => void;
+};
 
-export function PostCard({ post: initial, onDeleted }: Props) {
+export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
   const [post, setPost] = useState(initial);
   const [showComments, setShowComments] = useState(false);
   const [error, setError] = useState("");
@@ -40,6 +58,19 @@ export function PostCard({ post: initial, onDeleted }: Props) {
     try {
       const state = before.likedByMe ? await communityService.unlike(post.id) : await communityService.like(post.id);
       setPost((current) => ({ ...current, ...state }));
+    } catch (err) {
+      setPost(before);
+      setError(apiMessage(err));
+    }
+  }
+
+  async function toggleSave() {
+    const before = post;
+    setPost({ ...post, savedByMe: !post.savedByMe });
+    try {
+      const state = before.savedByMe ? await communityService.unsave(post.id) : await communityService.save(post.id);
+      setPost((current) => ({ ...current, ...state }));
+      if (!state.savedByMe) onUnsaved?.(post.id);
     } catch (err) {
       setPost(before);
       setError(apiMessage(err));
@@ -68,7 +99,7 @@ export function PostCard({ post: initial, onDeleted }: Props) {
       </header>
 
       {post.content && <p className={styles.content}>{post.content}</p>}
-      {post.imageUrl && <img className={styles.photo} src={post.imageUrl} alt={`Foto postada por ${post.author.name}`} loading="lazy" />}
+      {post.imageUrls.length > 0 && <PostPhotos urls={post.imageUrls} authorName={post.author.name} />}
 
       {error && (
         <p className={styles.error} role="alert">
@@ -97,6 +128,17 @@ export function PostCard({ post: initial, onDeleted }: Props) {
           <CommentIcon size={20} />
           {post.commentCount}
         </button>
+        <ShareButton post={post} />
+        <button
+          type="button"
+          className={`${styles.iconButton} ${post.savedByMe ? styles.saved : ""}`}
+          aria-pressed={post.savedByMe}
+          aria-label={post.savedByMe ? "Tirar dos salvos" : "Salvar"}
+          title={post.savedByMe ? "Tirar dos salvos" : "Salvar"}
+          onClick={toggleSave}
+        >
+          <BookmarkIcon size={20} filled={post.savedByMe} />
+        </button>
         {post.canDelete && (
           <button type="button" className={`${styles.iconButton} ${styles.deleteButton}`} disabled={busy} onClick={remove}>
             <TrashIcon size={18} />
@@ -112,6 +154,124 @@ export function PostCard({ post: initial, onDeleted }: Props) {
         />
       )}
     </article>
+  );
+}
+
+// Fotos do post: uma por vez, com setas e bolinhas quando há mais de uma. Clicar amplia.
+function PostPhotos({ urls, authorName }: { urls: string[]; authorName: string }) {
+  const [index, setIndex] = useState(0);
+  const [open, setOpen] = useState(false);
+  const many = urls.length > 1;
+  const alt = many ? `Foto ${index + 1} de ${urls.length}, postada por ${authorName}` : `Foto postada por ${authorName}`;
+
+  return (
+    <div className={styles.photos}>
+      <button type="button" className={styles.photoButton} aria-label={`Ampliar: ${alt}`} onClick={() => setOpen(true)}>
+        <img className={styles.photo} src={urls[index]} alt={alt} loading="lazy" />
+      </button>
+
+      {many && (
+        <>
+          {index > 0 && (
+            <button
+              type="button"
+              className={`${styles.photoArrow} ${styles.photoPrev}`}
+              aria-label="Foto anterior"
+              onClick={() => setIndex(index - 1)}
+            >
+              <ChevronLeftIcon size={20} />
+            </button>
+          )}
+          {index < urls.length - 1 && (
+            <button
+              type="button"
+              className={`${styles.photoArrow} ${styles.photoNext}`}
+              aria-label="Próxima foto"
+              onClick={() => setIndex(index + 1)}
+            >
+              <ChevronRightIcon size={20} />
+            </button>
+          )}
+          <div className={styles.dots} aria-hidden>
+            {urls.map((url, i) => (
+              <span key={url} className={i === index ? styles.dotActive : styles.dot} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {open && <Lightbox images={urls} index={index} alt={alt} onIndexChange={setIndex} onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
+
+// Compartilhar: no celular abre o menu de compartilhar do próprio aparelho (WhatsApp, Instagram,
+// mensagens...). No computador mostra as opções de copiar o link ou mandar pelo WhatsApp.
+function ShareButton({ post }: { post: Post }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const menu = useRef<HTMLDivElement>(null);
+  const link = postLink(post.id);
+  const text = `Olha esse post de @${post.author.username} no Clutch`;
+
+  // Fecha o menu ao clicar fora dele
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: MouseEvent) => {
+      if (!menu.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  async function share() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Clutch", text, url: link });
+        return;
+      } catch {
+        // A pessoa fechou o menu do aparelho: não precisa fazer nada
+        return;
+      }
+    }
+    setCopied(false);
+    setOpen((value) => !value);
+  }
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+    } catch {
+      window.prompt("Copie o link do post:", link);
+    }
+  }
+
+  return (
+    <div className={styles.shareWrapper} ref={menu}>
+      <button type="button" className={styles.iconButton} aria-label="Compartilhar" aria-expanded={open} onClick={share}>
+        <ShareIcon size={20} />
+      </button>
+      {open && (
+        <div className={styles.shareMenu} role="menu">
+          <button type="button" role="menuitem" className={styles.shareItem} onClick={copy}>
+            <LinkIcon size={18} />
+            {copied ? "Link copiado!" : "Copiar link"}
+          </button>
+          <a
+            role="menuitem"
+            className={styles.shareItem}
+            href={`https://wa.me/?text=${encodeURIComponent(`${text}: ${link}`)}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setOpen(false)}
+          >
+            <ShareIcon size={18} />
+            Enviar pelo WhatsApp
+          </a>
+        </div>
+      )}
+    </div>
   );
 }
 

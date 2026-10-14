@@ -27,6 +27,11 @@ export const marketService = {
   getProduct: (id: string) => api<Product>(`/products/${id}`),
   listBrands: () => api<Brand[]>("/brands"),
 
+  // Salvos (exigem login e 12 anos ou mais)
+  saveProduct: (id: string) => api<{ savedByMe: boolean }>(`/products/${id}/save`, { method: "PUT" }),
+  unsaveProduct: (id: string) => api<{ savedByMe: boolean }>(`/products/${id}/save`, { method: "DELETE" }),
+  getSavedProducts: () => api<Product[]>("/saved/products"),
+
   getCart: () => api<Cart>("/cart"),
   // A quantidade enviada substitui a que estava no carrinho
   setCartItem: (variantId: string, quantity: number) =>

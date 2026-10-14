@@ -333,3 +333,22 @@
     padding: 20px;
   }
 }
+
+/* Clicar na foto mostra ela ampliada */
+.avatarZoom {
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: zoom-in;
+  transition: transform 0.15s;
+}
+
+.avatarZoom:hover {
+  transform: scale(1.04);
+}
+
+.avatarZoom:focus-visible {
+  outline: 3px solid var(--brand-red);
+  outline-offset: 3px;
+}

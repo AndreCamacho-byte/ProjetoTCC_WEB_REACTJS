@@ -3,6 +3,7 @@ import { SearchIcon } from "@/components/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { adminService, type UserPage, type UserUpdate } from "@/services/admin";
 import type { User } from "@/types/user";
+import type { AdminUser } from "@/services/admin";
 import { ageFrom } from "@/utils/age";
 import { getErrorMessage, todayIso } from "@/utils/validation";
 import { ApiError } from "@/services/api";
@@ -28,8 +29,8 @@ export function AdminUsersPage() {
   const [query, setQuery] = useState({ search: "", page: 1 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [editing, setEditing] = useState<User | null>(null);
-  const [removing, setRemoving] = useState<User | null>(null);
+  const [editing, setEditing] = useState<AdminUser | null>(null);
+  const [removing, setRemoving] = useState<AdminUser | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -65,7 +66,7 @@ export function AdminUsersPage() {
         <form className={styles.search} role="search" onSubmit={handleSearch}>
           <input
             type="search"
-            placeholder="Buscar por nome, @ ou email"
+            placeholder="Buscar por nome ou @"
             aria-label="Buscar usuários"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -87,7 +88,6 @@ export function AdminUsersPage() {
           <thead>
             <tr>
               <th>Nome</th>
-              <th>Email</th>
               <th>Função</th>
               <th>Email confirmado</th>
               <th>Idade</th>
@@ -104,7 +104,6 @@ export function AdminUsersPage() {
                   <strong>{user.name}</strong>
                   <span className={styles.handle}>@{user.username}</span>
                 </td>
-                <td>{user.email}</td>
                 <td>
                   <span className={user.role === "ADMIN" ? styles.badgeAdmin : styles.badge}>
                     {user.role === "ADMIN" ? "Admin" : "Usuário"}
@@ -219,7 +218,7 @@ export function Dialog({ title, onClose, children, wide = false }: DialogProps) 
   );
 }
 
-type EditProps = { user: User; isMe: boolean; onClose: () => void; onSaved: () => void };
+type EditProps = { user: AdminUser; isMe: boolean; onClose: () => void; onSaved: () => void };
 
 function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
   const [name, setName] = useState(user.name);
@@ -260,7 +259,7 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
   return (
     <Dialog title="Editar usuário" onClose={onClose}>
       <form className={styles.form} onSubmit={handleSubmit}>
-        <p className={styles.dialogEmail}>{user.email}</p>
+        <p className={styles.dialogEmail}>@{user.username}</p>
         {error && (
           <p className={styles.error} role="alert">
             {error}
@@ -308,7 +307,7 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
   );
 }
 
-type RemoveProps = { user: User; onClose: () => void; onRemoved: () => void };
+type RemoveProps = { user: AdminUser; onClose: () => void; onRemoved: () => void };
 
 function RemoveUserDialog({ user, onClose, onRemoved }: RemoveProps) {
   const [error, setError] = useState("");
@@ -330,7 +329,7 @@ function RemoveUserDialog({ user, onClose, onRemoved }: RemoveProps) {
     <Dialog title="Remover usuário" onClose={onClose}>
       <div className={styles.form}>
         <p>
-          Remover <strong>{user.name}</strong> ({user.email})? A conta e tudo que é dela (posts, comentários, curtidas,
+          Remover <strong>{user.name}</strong> (@{user.username})? A conta e tudo que é dela (posts, comentários, curtidas,
           encontros e pedidos da loja) serão apagados. <strong>Não dá para desfazer.</strong>
         </p>
         {error && (

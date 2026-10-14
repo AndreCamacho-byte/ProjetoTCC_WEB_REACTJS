@@ -124,7 +124,7 @@ export function AdminOrdersPage() {
                 </td>
                 <td>
                   {order.customer.name}
-                  <span className={styles.handle}>{order.customer.email}</span>
+                  <span className={styles.handle}>@{order.customer.username}</span>
                 </td>
                 <td>
                   <ul className={styles.orderItems}>

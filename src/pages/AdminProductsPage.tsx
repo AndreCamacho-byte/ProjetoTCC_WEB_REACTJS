@@ -275,9 +275,13 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
 
     setUploading(true);
     setError("");
+    setMessage("");
     try {
-      const image = await adminMarketService.addImage(product.id, await fileToProductPhoto(file));
+      const { photo, small } = await fileToProductPhoto(file);
+      const image = await adminMarketService.addImage(product.id, photo);
       setImages((current) => [...current, image]);
+      // A foto entra mesmo assim, mas o admin fica sabendo que pode ficar borrada
+      if (small) setMessage("Foto adicionada, mas ela é pequena e pode aparecer borrada. Se puder, use uma foto maior.");
     } catch (err) {
       setError(err instanceof Error && err.name === "Error" ? err.message : apiMessage(err));
     } finally {
@@ -375,6 +379,9 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
           <legend>
             Fotos ({images.length}/{MAX_PHOTOS})
           </legend>
+          <small className={styles.hint}>
+            A foto entra inteira num quadrado com fundo branco (nada é cortado). Prefira fotos com pelo menos 500 px.
+          </small>
           {product ? (
             <div className={styles.photos}>
               {images.map((image, index) => (

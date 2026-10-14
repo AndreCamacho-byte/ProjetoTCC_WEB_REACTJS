@@ -10,10 +10,12 @@ type Props = {
   emptyText: string;
   // Post recém-criado, que entra no topo sem recarregar a lista
   newPost?: Post | null;
+  // Na tela de salvos: o post some da lista quando a pessoa tira dos salvos
+  removeOnUnsave?: boolean;
 };
 
 // Lista de posts com o botão "Carregar mais" (usada no feed e no perfil)
-export function PostList({ load, emptyText, newPost }: Props) {
+export function PostList({ load, emptyText, newPost, removeOnUnsave = false }: Props) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +60,12 @@ export function PostList({ load, emptyText, newPost }: Props) {
   return (
     <>
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} onDeleted={(id) => setPosts((current) => current.filter((p) => p.id !== id))} />
+        <PostCard
+          key={post.id}
+          post={post}
+          onDeleted={(id) => setPosts((current) => current.filter((p) => p.id !== id))}
+          onUnsaved={removeOnUnsave ? (id) => setPosts((current) => current.filter((p) => p.id !== id)) : undefined}
+        />
       ))}
 
       {error && (
