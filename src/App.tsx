@@ -13,6 +13,8 @@ import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
+import { CommunityPage } from "./pages/community/CommunityPage";
+import { ProfilePage } from "./pages/community/ProfilePage";
 import { LoginPage } from "./pages/LoginPage";
 import { CartPage } from "./pages/market/CartPage";
 import { CheckoutPage } from "./pages/market/CheckoutPage";
@@ -23,12 +25,13 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { TermsPage } from "./pages/TermsPage";
 
 // Áreas com idade mínima de 12 anos: spots (Explorar), encontros (Eventos) e marketplace
 const AGE_RESTRICTED = ["/explorar", "/eventos", "/market"];
 
 // Páginas que já existem; as outras seções do menu ainda mostram "Em breve"
-const READY: Record<string, ReactNode> = { "/market": <MarketPage /> };
+const READY: Record<string, ReactNode> = { "/market": <MarketPage />, "/comunidade": <CommunityPage /> };
 
 // Telas da loja que exigem login (carrinho, finalizar compra e pedidos), além da idade mínima
 const buyer = (page: ReactNode) => (
@@ -51,7 +54,7 @@ function App() {
               AGE_RESTRICTED.includes(link.to) ? (
                 <AgeGate area={link.label}>{READY[link.to] ?? <ComingSoonPage title={link.label} />}</AgeGate>
               ) : (
-                <ComingSoonPage title={link.label} />
+                (READY[link.to] ?? <ComingSoonPage title={link.label} />)
               )
             }
           />
@@ -68,6 +71,15 @@ function App() {
         <Route path="/market/finalizar" element={buyer(<CheckoutPage />)} />
         <Route path="/market/pedidos" element={buyer(<OrdersPage />)} />
         <Route path="/market/pedidos/:id" element={buyer(<OrderPage />)} />
+        <Route
+          path="/u/:username"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/termos" element={<TermsPage />} />
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
         <Route path="/privacidade" element={<PrivacyPage />} />
         {/* Qualquer endereço que não existe */}

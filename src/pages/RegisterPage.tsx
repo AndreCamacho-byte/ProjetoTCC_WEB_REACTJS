@@ -127,6 +127,10 @@ export function RegisterPage() {
         <Button type="submit" loading={loading} className={styles.submit}>
           Criar conta
         </Button>
+        <p className={styles.legal}>
+          Ao criar a conta, você concorda com os <Link to="/termos">Termos de Uso</Link> e a{" "}
+          <Link to="/privacidade">Política de Privacidade</Link>.
+        </p>
       </form>
     </AuthLayout>
   );

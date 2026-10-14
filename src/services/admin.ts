@@ -10,6 +10,8 @@ export type UserUpdate = {
   emailVerified?: boolean;
   // AAAA-MM-DD, ou null para apagar
   birthDate?: string | null;
+  // true suspende (a pessoa não entra e some da comunidade); false libera
+  suspended?: boolean;
 };
 
 // Rotas exclusivas de administradores (o backend recusa com 403 se a conta não for admin)

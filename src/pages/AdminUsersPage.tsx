@@ -109,6 +109,7 @@ export function AdminUsersPage() {
                   <span className={user.role === "ADMIN" ? styles.badgeAdmin : styles.badge}>
                     {user.role === "ADMIN" ? "Admin" : "Usuário"}
                   </span>
+                  {user.suspendedAt && <span className={styles.badgeOff}> Suspensa</span>}
                 </td>
                 <td>{user.emailVerifiedAt ? "Sim" : "Não"}</td>
                 <td>{user.birthDate ? `${ageFrom(user.birthDate)} anos` : "Não verificada"}</td>
@@ -227,6 +228,7 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
   const [emailVerified, setEmailVerified] = useState(Boolean(user.emailVerifiedAt));
   const originalBirthDate = user.birthDate?.slice(0, 10) ?? "";
   const [birthDate, setBirthDate] = useState(originalBirthDate);
+  const [suspended, setSuspended] = useState(Boolean(user.suspendedAt));
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -241,6 +243,7 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
     if (role !== user.role) changes.role = role;
     if (emailVerified !== Boolean(user.emailVerifiedAt)) changes.emailVerified = emailVerified;
     if (birthDate !== originalBirthDate) changes.birthDate = birthDate || null;
+    if (suspended !== Boolean(user.suspendedAt)) changes.suspended = suspended;
     if (Object.keys(changes).length === 0) return onClose();
 
     setSaving(true);
@@ -287,6 +290,10 @@ function EditUserDialog({ user, isMe, onClose, onSaved }: EditProps) {
         <label className={styles.checkbox}>
           <input type="checkbox" checked={emailVerified} onChange={(e) => setEmailVerified(e.target.checked)} />
           Email confirmado (pode entrar no site)
+        </label>
+        <label className={styles.checkbox}>
+          <input type="checkbox" checked={suspended} onChange={(e) => setSuspended(e.target.checked)} disabled={isMe} />
+          Conta suspensa (não entra no site e some da comunidade)
         </label>
         <div className={styles.dialogActions}>
           <button type="button" className={styles.secondary} onClick={onClose}>
