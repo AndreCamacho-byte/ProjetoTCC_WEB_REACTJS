@@ -10,6 +10,12 @@ vi.mock("@/services/community", () => ({
     deletePost: vi.fn(),
     like: vi.fn(),
     unlike: vi.fn(),
+    save: vi.fn(),
+    unsave: vi.fn(),
+    getSaved: vi.fn(),
+    getPost: vi.fn(),
+    getFollowers: vi.fn(),
+    getFollowing: vi.fn(),
     getComments: vi.fn(),
     createComment: vi.fn(),
     deleteComment: vi.fn(),
@@ -44,12 +50,13 @@ function makePost(overrides: Partial<Post> = {}): Post {
   return {
     id: "post-1",
     content: "Sessão de hoje na praça",
-    imageUrl: null,
+    imageUrls: [],
     createdAt: new Date().toISOString(),
     author: otherAuthor,
     likeCount: 3,
     commentCount: 1,
     likedByMe: false,
+    savedByMe: false,
     canDelete: false,
     ...overrides,
   };
@@ -145,7 +152,7 @@ describe("Comunidade", () => {
     await userEvent.type(screen.getByRole("textbox", { name: "Escreva um post" }), "  Meu primeiro post ");
     await userEvent.click(postButton);
 
-    await waitFor(() => expect(service.createPost).toHaveBeenCalledWith("Meu primeiro post", undefined));
+    await waitFor(() => expect(service.createPost).toHaveBeenCalledWith("Meu primeiro post", []));
     const articles = await screen.findAllByRole("article");
     expect(within(articles[0]).getByText("Meu primeiro post")).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Escreva um post" })).toHaveValue("");
@@ -224,6 +231,7 @@ describe("Perfil", () => {
     following: 2,
     posts: 1,
     followedByMe: false,
+    followsMe: false,
     isMe: false,
   };
 

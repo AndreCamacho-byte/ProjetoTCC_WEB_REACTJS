@@ -14,7 +14,9 @@ import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
 import { CommunityPage } from "./pages/community/CommunityPage";
+import { PostPage } from "./pages/community/PostPage";
 import { ProfilePage } from "./pages/community/ProfilePage";
+import { SavedPage } from "./pages/community/SavedPage";
 import { LoginPage } from "./pages/LoginPage";
 import { CartPage } from "./pages/market/CartPage";
 import { CheckoutPage } from "./pages/market/CheckoutPage";
@@ -76,6 +78,22 @@ function App() {
           element={
             <PrivateRoute>
               <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/comunidade/post/:id"
+          element={
+            <PrivateRoute>
+              <PostPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/salvos"
+          element={
+            <PrivateRoute>
+              <SavedPage />
             </PrivateRoute>
           }
         />

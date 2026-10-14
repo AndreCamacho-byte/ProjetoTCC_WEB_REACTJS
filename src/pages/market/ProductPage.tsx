@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { ChevronLeftIcon } from "@/components/icons";
+import { BookmarkIcon, ChevronLeftIcon } from "@/components/icons";
+import { Lightbox } from "@/components/Lightbox";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
 import { marketService } from "@/services/market";
 import type { Product } from "@/types/market";
+import { ageStatus } from "@/utils/age";
 import { formatBRL } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import styles from "./Market.module.css";
@@ -27,6 +29,23 @@ export function ProductPage() {
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  // Salvar exige login e a idade da loja (12 anos)
+  const canSave = user !== null && ageStatus(user) === "OK";
+
+  // Descobre se o produto já está nos salvos de quem está vendo
+  useEffect(() => {
+    if (!canSave) return;
+    let ignore = false;
+    marketService.getSavedProducts().then(
+      (products) => !ignore && setSaved(products.some((p) => p.id === id)),
+      () => {},
+    );
+    return () => {
+      ignore = true;
+    };
+  }, [canSave, id]);
 
   usePageTitle(product?.name ?? "Market");
 
@@ -92,6 +111,19 @@ export function ProductPage() {
     setError("");
   }
 
+  async function toggleSave() {
+    if (!user) return navigate("/login", { state: { from: location.pathname } });
+    const before = saved;
+    setSaved(!before);
+    try {
+      const state = before ? await marketService.unsaveProduct(id) : await marketService.saveProduct(id);
+      setSaved(state.savedByMe);
+    } catch (err) {
+      setSaved(before);
+      setError(apiMessage(err));
+    }
+  }
+
   async function addToCart() {
     if (!user) {
       // Depois de entrar, a pessoa volta para este produto
@@ -121,7 +153,27 @@ export function ProductPage() {
 
       <div className={styles.product}>
         <div>
-          <ProductPhoto url={product.images[photo]?.url} name={product.name} brandName={product.brand.name} />
+          {product.images.length > 0 ? (
+            <button
+              type="button"
+              className={styles.zoomButton}
+              aria-label={`Ampliar a foto de ${product.name}`}
+              onClick={() => setPhotoOpen(true)}
+            >
+              <ProductPhoto url={product.images[photo]?.url} name={product.name} brandName={product.brand.name} />
+            </button>
+          ) : (
+            <ProductPhoto url={undefined} name={product.name} brandName={product.brand.name} />
+          )}
+          {photoOpen && (
+            <Lightbox
+              images={product.images.map((image) => image.url)}
+              index={photo}
+              alt={product.name}
+              onIndexChange={setPhoto}
+              onClose={() => setPhotoOpen(false)}
+            />
+          )}
           {product.images.length > 1 && (
             <div className={styles.thumbs}>
               {product.images.map((image, index) => (
@@ -143,7 +195,20 @@ export function ProductPage() {
         <div>
           <p className={styles.kicker}>{product.brand.name}</p>
           <h1 className={styles.productName}>{product.name}</h1>
-          <p className={styles.productPrice}>{formatBRL(product.price)}</p>
+          <div className={styles.priceRow}>
+            <p className={styles.productPrice}>{formatBRL(product.price)}</p>
+            {(canSave || !user) && (
+              <button
+                type="button"
+                className={`${styles.saveButton} ${saved ? styles.saveButtonOn : ""}`}
+                aria-pressed={saved}
+                onClick={toggleSave}
+              >
+                <BookmarkIcon size={18} filled={saved} />
+                {saved ? "Salvo" : "Salvar"}
+              </button>
+            )}
+          </div>
 
           <p className={styles.label} id="size-label">
             Tamanho

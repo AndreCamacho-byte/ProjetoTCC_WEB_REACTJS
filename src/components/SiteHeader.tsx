@@ -163,6 +163,12 @@ function UserMenu() {
         <div className={styles.dropdown}>
           <p className={styles.userName}>{user.name}</p>
           <p className={styles.userHandle}>@{user.username}</p>
+          <Link to={`/u/${user.username}`} className={styles.menuItem} onClick={() => setOpen(false)}>
+            Meu perfil
+          </Link>
+          <Link to="/salvos" className={styles.menuItem} onClick={() => setOpen(false)}>
+            Salvos
+          </Link>
           <Link to="/conta" className={styles.menuItem} onClick={() => setOpen(false)}>
             Configurações
           </Link>

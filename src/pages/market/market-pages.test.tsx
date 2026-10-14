@@ -9,6 +9,9 @@ vi.mock("@/services/market", () => ({
     listProducts: vi.fn(),
     getProduct: vi.fn(),
     listBrands: vi.fn(),
+    saveProduct: vi.fn(),
+    unsaveProduct: vi.fn(),
+    getSavedProducts: vi.fn(),
     getCart: vi.fn(),
     setCartItem: vi.fn(),
     removeCartItem: vi.fn(),
@@ -112,6 +115,7 @@ beforeEach(() => {
   loginAs(makeUser());
   withCart(makeCart([]));
   service.listBrands.mockResolvedValue([]);
+  service.getSavedProducts.mockResolvedValue([]);
 });
 
 describe("Vitrine", () => {
@@ -268,6 +272,34 @@ describe("Página do produto", () => {
     expect(currentPath()).toBe("/login");
     expect(JSON.parse(screen.getByTestId("location").dataset.state ?? "null")).toEqual({ from: `/market/produto/${PRODUCT_ID}` });
     expect(service.setCartItem).not.toHaveBeenCalled();
+  });
+
+  it("salva o produto e mostra que já está salvo", async () => {
+    service.getProduct.mockResolvedValue(makeProduct());
+    service.saveProduct.mockResolvedValue({ savedByMe: true });
+    open();
+
+    await userEvent.click(await screen.findByRole("button", { name: "Salvar" }));
+
+    expect(await screen.findByRole("button", { name: "Salvo" })).toHaveAttribute("aria-pressed", "true");
+    expect(service.saveProduct).toHaveBeenCalledWith(PRODUCT_ID);
+  });
+
+  it("já abre marcado quando o produto está nos salvos", async () => {
+    service.getProduct.mockResolvedValue(makeProduct());
+    service.getSavedProducts.mockResolvedValue([makeProduct()]);
+    open();
+
+    expect(await screen.findByRole("button", { name: "Salvo" })).toBeInTheDocument();
+  });
+
+  it("amplia a foto do produto", async () => {
+    service.getProduct.mockResolvedValue(makeProduct({ images: [{ id: "img-1", url: "/api/products/images/img-1" }] }));
+    open();
+
+    await userEvent.click(await screen.findByRole("button", { name: /Ampliar a foto/ }));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("produto esgotado não pode ser adicionado", async () => {

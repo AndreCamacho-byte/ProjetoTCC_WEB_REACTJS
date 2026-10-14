@@ -601,3 +601,10 @@
 .headerActions .search {
   width: min(100%, 240px);
 }
+
+.hint {
+  display: block;
+  margin: -2px 0 10px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

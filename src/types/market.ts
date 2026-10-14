@@ -70,7 +70,7 @@ export type Order = {
 };
 
 // No painel do administrador, cada pedido vem com o cliente
-export type AdminOrder = Order & { customer: { name: string; email: string } };
+export type AdminOrder = Order & { customer: { name: string; username: string } };
 export type AdminOrderPage = { orders: AdminOrder[]; total: number; page: number; pageSize: number };
 
 export type ProductInput = {

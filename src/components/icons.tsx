@@ -126,3 +126,23 @@ export const TrashIcon = (p: IconProps) => (
     <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" />
   </Icon>
 );
+
+export const BookmarkIcon = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
+  <Icon {...p} fill={filled ? "currentColor" : "none"}>
+    <path d="M6 3h12v18l-6-4.5L6 21z" />
+  </Icon>
+);
+
+export const ShareIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v12M7 8l5-5 5 5" />
+    <path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6" />
+  </Icon>
+);
+
+export const LinkIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" />
+    <path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
+  </Icon>
+);
