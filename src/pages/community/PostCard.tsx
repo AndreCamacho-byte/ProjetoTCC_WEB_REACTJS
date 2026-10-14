@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import {
   BookmarkIcon,
+  ChatIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CommentIcon,
@@ -12,6 +13,8 @@ import {
   TrashIcon,
 } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
+import { chatService } from "@/services/chat";
+import { FriendsDialog } from "../chat/FriendsDialog";
 import { communityService } from "@/services/community";
 import type { Author, Comment, Post } from "@/types/community";
 import { SKATE_LEVEL_LABEL, timeAgo } from "@/utils/format";
@@ -205,11 +208,12 @@ function PostPhotos({ urls, authorName }: { urls: string[]; authorName: string }
   );
 }
 
-// Compartilhar: no celular abre o menu de compartilhar do próprio aparelho (WhatsApp, Instagram,
-// mensagens...). No computador mostra as opções de copiar o link ou mandar pelo WhatsApp.
+// Compartilhar: enviar para amigos pelo chat do Clutch ou para fora (menu do aparelho no celular,
+// copiar o link ou mandar pelo WhatsApp)
 function ShareButton({ post }: { post: Post }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [toFriends, setToFriends] = useState(false);
   const menu = useRef<HTMLDivElement>(null);
   const link = postLink(post.id);
   const text = `Olha esse post de @${post.author.username} no Clutch`;
@@ -224,18 +228,20 @@ function ShareButton({ post }: { post: Post }) {
     return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
-  async function share() {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: "Clutch", text, url: link });
-        return;
-      } catch {
-        // A pessoa fechou o menu do aparelho: não precisa fazer nada
-        return;
-      }
-    }
+  // O menu sempre abre: "Enviar para amigos" (dentro do Clutch) e as opções de fora
+  function share() {
     setCopied(false);
     setOpen((value) => !value);
+  }
+
+  // Menu de compartilhar do próprio aparelho (no celular: WhatsApp, Instagram, mensagens...)
+  async function shareOutside() {
+    setOpen(false);
+    try {
+      await navigator.share({ title: "Clutch", text, url: link });
+    } catch {
+      // A pessoa fechou o menu do aparelho: não precisa fazer nada
+    }
   }
 
   async function copy() {
@@ -254,6 +260,24 @@ function ShareButton({ post }: { post: Post }) {
       </button>
       {open && (
         <div className={styles.shareMenu} role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            className={styles.shareItem}
+            onClick={() => {
+              setOpen(false);
+              setToFriends(true);
+            }}
+          >
+            <ChatIcon size={18} />
+            Enviar para amigos
+          </button>
+          {typeof navigator.share === "function" && (
+            <button type="button" role="menuitem" className={styles.shareItem} onClick={shareOutside}>
+              <ShareIcon size={18} />
+              Compartilhar fora do Clutch
+            </button>
+          )}
           <button type="button" role="menuitem" className={styles.shareItem} onClick={copy}>
             <LinkIcon size={18} />
             {copied ? "Link copiado!" : "Copiar link"}
@@ -270,6 +294,16 @@ function ShareButton({ post }: { post: Post }) {
             Enviar pelo WhatsApp
           </a>
         </div>
+      )}
+      {toFriends && (
+        <FriendsDialog
+          title="Enviar para amigos"
+          mode="many"
+          onClose={() => setToFriends(false)}
+          onSend={async (usernames, message) => {
+            await chatService.sharePost(post.id, usernames, message);
+          }}
+        />
       )}
     </div>
   );

@@ -13,6 +13,7 @@ import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
+import { ChatPage } from "./pages/chat/ChatPage";
 import { CommunityPage } from "./pages/community/CommunityPage";
 import { PostPage } from "./pages/community/PostPage";
 import { ProfilePage } from "./pages/community/ProfilePage";
@@ -94,6 +95,22 @@ function App() {
           element={
             <PrivateRoute>
               <SavedPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mensagens"
+          element={
+            <PrivateRoute>
+              <ChatPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/mensagens/:id"
+          element={
+            <PrivateRoute>
+              <ChatPage />
             </PrivateRoute>
           }
         />

@@ -2,8 +2,9 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { CHAT_READ_EVENT, chatService } from "@/services/chat";
 import { Avatar } from "./Avatar";
-import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
+import { BagIcon, ChatIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
 import { Logo } from "./Logo";
 import styles from "./SiteHeader.module.css";
 
@@ -68,6 +69,7 @@ export function SiteHeader() {
           <div ref={searchSlotRef} className={styles.searchSlot} onMouseEnter={measureSearch} onFocus={measureSearch}>
             <SearchForm className={styles.searchDesktop} />
           </div>
+          <ChatLink />
           <CartLink />
           <UserMenu />
           <button
@@ -107,6 +109,34 @@ function SearchForm({ className }: { className: string }) {
         <SearchIcon size={16} />
       </button>
     </form>
+  );
+}
+
+// Atalho para o chat, com o número de mensagens não lidas (atualiza sozinho de tempos em tempos)
+function ChatLink() {
+  const { user } = useAuth();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const refresh = () => {
+      if (document.visibilityState === "visible") chatService.unreadCount().then((r) => setUnread(r.count), () => {});
+    };
+    refresh();
+    const timer = window.setInterval(refresh, 20000);
+    window.addEventListener(CHAT_READ_EVENT, refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener(CHAT_READ_EVENT, refresh);
+    };
+  }, [user]);
+
+  if (!user) return null;
+  return (
+    <Link to="/mensagens" className={styles.cart} aria-label={unread > 0 ? `Mensagens (${unread} não lidas)` : "Mensagens"}>
+      <ChatIcon size={20} />
+      {unread > 0 && <span className={styles.cartCount}>{unread > 99 ? "99+" : unread}</span>}
+    </Link>
   );
 }
 
