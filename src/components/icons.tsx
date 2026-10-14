@@ -146,3 +146,15 @@ export const LinkIcon = (p: IconProps) => (
     <path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" />
   </Icon>
 );
+
+export const ChatIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 5h16v11H9l-5 4z" />
+  </Icon>
+);
+
+export const SendIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 12 20 4l-6 16-3-7z" />
+  </Icon>
+);

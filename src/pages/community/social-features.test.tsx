@@ -4,6 +4,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/hooks/useAuth", () => ({ useAuth: vi.fn() }));
 vi.mock("@/utils/image", () => ({ fileToPostPhoto: vi.fn() }));
+vi.mock("@/services/chat", () => ({
+  CHAT_READ_EVENT: "clutch:chat-read",
+  notifyChatRead: vi.fn(),
+  chatService: { listFriends: vi.fn(), sharePost: vi.fn(), open: vi.fn() },
+}));
 vi.mock("@/services/community", () => ({
   communityService: {
     getFeed: vi.fn(),
@@ -29,6 +34,7 @@ vi.mock("@/services/community", () => ({
 }));
 
 import { useAuth } from "@/hooks/useAuth";
+import { chatService } from "@/services/chat";
 import { communityService } from "@/services/community";
 import { makeUser, renderAt } from "@/test/helpers";
 import type { Post, Profile } from "@/types/community";
@@ -154,17 +160,52 @@ describe("salvar e compartilhar posts", () => {
     expect(await screen.findByText("Link copiado!")).toBeInTheDocument();
   });
 
-  it("no celular, usa o menu de compartilhar do aparelho", async () => {
+  it("no celular, também oferece o menu de compartilhar do aparelho", async () => {
     service.getFeed.mockResolvedValue(page([makePost()]));
     const share = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "share", { value: share, configurable: true });
     renderAt(<CommunityPage />, { path: "/comunidade" });
 
     await userEvent.click(await screen.findByRole("button", { name: "Compartilhar" }));
+    await userEvent.click(screen.getByRole("menuitem", { name: "Compartilhar fora do Clutch" }));
 
     expect(share).toHaveBeenCalledWith(expect.objectContaining({ url: `${window.location.origin}/comunidade/post/post-1` }));
     expect(screen.queryByRole("menu")).not.toBeInTheDocument();
     Reflect.deleteProperty(navigator, "share");
+  });
+
+  it("envia o post para amigos escolhidos, com uma mensagem", async () => {
+    service.getFeed.mockResolvedValue(page([makePost()]));
+    vi.mocked(chatService.listFriends).mockResolvedValue([
+      { id: "a", name: "Ana", username: "ana", avatarUrl: null, skateLevel: null },
+      { id: "b", name: "Bia", username: "bia", avatarUrl: null, skateLevel: null },
+    ]);
+    vi.mocked(chatService.sharePost).mockResolvedValue({ sent: 1 });
+    renderAt(<CommunityPage />, { path: "/comunidade" });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Compartilhar" }));
+    await userEvent.click(screen.getByRole("menuitem", { name: "Enviar para amigos" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Enviar para amigos" });
+    const send = within(dialog).getByRole("button", { name: "Enviar" });
+    expect(send).toBeDisabled();
+    await userEvent.click(await within(dialog).findByRole("checkbox", { name: "Enviar para Bia" }));
+    await userEvent.type(within(dialog).getByRole("textbox", { name: /Mensagem junto/ }), "olha isso");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Enviar (1)" }));
+
+    expect(chatService.sharePost).toHaveBeenCalledWith("post-1", ["bia"], "olha isso");
+    expect(await within(dialog).findByRole("status")).toHaveTextContent("Enviado para 1 amigo");
+  });
+
+  it("quem ainda não tem amigos vê uma explicação", async () => {
+    service.getFeed.mockResolvedValue(page([makePost()]));
+    vi.mocked(chatService.listFriends).mockResolvedValue([]);
+    renderAt(<CommunityPage />, { path: "/comunidade" });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Compartilhar" }));
+    await userEvent.click(screen.getByRole("menuitem", { name: "Enviar para amigos" }));
+
+    expect(await screen.findByText(/ainda não tem amigos no Clutch/)).toBeInTheDocument();
   });
 
   it("o link compartilhado abre o post", async () => {
@@ -236,6 +277,25 @@ describe("perfil como no Instagram", () => {
     expect(service.follow).toHaveBeenCalledWith("ana");
     expect(await within(dialog).findByRole("button", { name: "Deixar de seguir @ana" })).toHaveTextContent("Seguindo");
     expect(service.getFollowers).toHaveBeenCalledWith("leticia", undefined);
+  });
+
+  it("amigos ganham o botão de mensagem, que abre a conversa", async () => {
+    service.getProfile.mockResolvedValue({ ...profile, followedByMe: true });
+    vi.mocked(chatService.open).mockResolvedValue({ id: "conversa-1", other: author, canSend: true });
+    open();
+
+    await userEvent.click(await screen.findByRole("button", { name: "Mensagem" }));
+
+    expect(chatService.open).toHaveBeenCalledWith("leticia");
+    await waitFor(() => expect(screen.getByTestId("location")).toHaveTextContent("/mensagens/conversa-1"));
+  });
+
+  it("quem não é amigo não vê o botão de mensagem", async () => {
+    service.getProfile.mockResolvedValue(profile);
+    open();
+
+    await screen.findByRole("button", { name: "Seguir de volta" });
+    expect(screen.queryByRole("button", { name: "Mensagem" })).not.toBeInTheDocument();
   });
 
   it("abre a lista de quem a pessoa segue", async () => {

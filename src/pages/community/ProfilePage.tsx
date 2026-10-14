@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { ChevronLeftIcon, CloseIcon } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
+import { chatService } from "@/services/chat";
 import { communityService } from "@/services/community";
 import type { FollowPerson, Profile } from "@/types/community";
 import { SKATE_LEVEL_LABEL } from "@/utils/format";
@@ -24,6 +25,7 @@ function followLabel(followedByMe: boolean, followsMe: boolean) {
 export function ProfilePage() {
   const { username = "" } = useParams();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -71,6 +73,16 @@ export function ProfilePage() {
   }
 
   const friends = profile?.followedByMe && profile.followsMe;
+
+  async function openChat() {
+    if (!profile) return;
+    try {
+      const conversation = await chatService.open(profile.username);
+      navigate(`/mensagens/${conversation.id}`);
+    } catch (err) {
+      setError(apiMessage(err));
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -152,6 +164,12 @@ export function ProfilePage() {
                       onClick={toggleFollow}
                     >
                       {followLabel(profile.followedByMe, profile.followsMe)}
+                    </button>
+                  )}
+                  {/* Só amigos (os dois se seguem) conversam */}
+                  {!profile.isMe && friends && (
+                    <button type="button" className={styles.secondary} onClick={openChat}>
+                      Mensagem
                     </button>
                   )}
                 </div>

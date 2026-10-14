@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "14 de outubro de 2026";
+const LAST_UPDATE = "16 de outubro de 2026";
 
 // Política de Privacidade. O texto descreve o que o site faz de verdade com os dados:
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
@@ -58,6 +58,9 @@ export function PrivacyPage() {
           </li>
           <li>
             <strong>Posts, fotos e comentários</strong> que você publica na Comunidade.
+          </li>
+          <li>
+            <strong>Mensagens</strong> que você troca com seus amigos no chat, incluindo os posts que você envia por lá.
           </li>
           <li>
             <strong>Endereço de entrega</strong> (nome de quem recebe, CEP, rua, número, complemento, bairro, cidade e
@@ -159,6 +162,11 @@ export function PrivacyPage() {
           os seus posts e comentários e quantas pessoas você segue e te seguem. O seu email e a sua idade nunca
           aparecem para outros usuários. Quem não tem conta não vê a Comunidade.
         </p>
+        <p>
+          As mensagens do chat só aparecem para as duas pessoas da conversa. A equipe do Clutch não lê as conversas no
+          site; elas ficam guardadas no banco de dados para funcionar. O chat só existe entre amigos (pessoas que se
+          seguem).
+        </p>
       </section>
 
       <section>
@@ -173,7 +181,7 @@ export function PrivacyPage() {
         <h2>7. Por quanto tempo guardamos</h2>
         <p>
           Os seus dados ficam guardados enquanto a sua conta existir. Quando você exclui a conta, apagamos o seu
-          cadastro, a foto de perfil, os seus posts, fotos, comentários, curtidas e seguidores, o carrinho e os
+          cadastro, a foto de perfil, os seus posts, fotos, comentários, curtidas, seguidores e mensagens, o carrinho e os
           pedidos (com o endereço de entrega). Códigos de confirmação e links de redefinição de senha expiram sozinhos (em até 24 horas e em 1 hora, respectivamente).
         </p>
       </section>

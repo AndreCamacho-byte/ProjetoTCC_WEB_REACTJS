@@ -4,7 +4,7 @@ import { MIN_AGE } from "@/utils/age";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "14 de outubro de 2026";
+const LAST_UPDATE = "16 de outubro de 2026";
 
 // Termos de Uso: as regras de convivência e o que o Clutch é (e não é).
 // Ao mudar as regras do site, atualize esta página e a data acima.
@@ -59,6 +59,11 @@ export function TermsPage() {
           <li>Golpes, propaganda repetitiva (spam) ou links enganosos;</li>
           <li>Fotos ou textos que não são seus e que você não tem permissão para usar.</li>
         </ul>
+        <p>
+          As mesmas regras valem para o chat. Só amigos (pessoas que se seguem) conversam: para parar de receber
+          mensagens de alguém, deixe de seguir a pessoa. Se receber algo que quebre estas regras, denuncie pelo email de
+          contato.
+        </p>
         <p>
           O que você posta continua sendo seu. Ao postar, você permite que o Clutch mostre esse conteúdo dentro do
           site enquanto ele estiver publicado.
