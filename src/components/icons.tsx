@@ -158,3 +158,18 @@ export const SendIcon = (p: IconProps) => (
     <path d="M4 12 20 4l-6 16-3-7z" />
   </Icon>
 );
+
+export const TruckIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 6h11v10H3zM14 9h4l3 3v4h-7" />
+    <circle cx="7" cy="17.5" r="1.8" />
+    <circle cx="17" cy="17.5" r="1.8" />
+  </Icon>
+);
+
+export const LockIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="5" y="11" width="14" height="10" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </Icon>
+);

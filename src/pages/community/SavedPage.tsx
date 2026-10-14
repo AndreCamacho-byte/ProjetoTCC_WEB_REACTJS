@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { BookmarkIcon } from "@/components/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { usePageTitle } from "@/hooks/usePageTitle";
@@ -7,10 +6,9 @@ import { communityService } from "@/services/community";
 import { marketService } from "@/services/market";
 import type { Product } from "@/types/market";
 import { ageStatus, MIN_AGE } from "@/utils/age";
-import { formatBRL } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import marketStyles from "../market/Market.module.css";
-import { ProductPhoto } from "../market/shared";
+import { ProductCard } from "../market/ProductCard";
 import styles from "./Community.module.css";
 import { PostList } from "./PostList";
 
@@ -99,12 +97,7 @@ function SavedProducts() {
     <ul className={marketStyles.grid}>
       {products.map((product) => (
         <li key={product.id} style={{ position: "relative" }}>
-          <Link to={`/market/produto/${product.id}`} className={marketStyles.card}>
-            <ProductPhoto url={product.images[0]?.url} name={product.name} brandName={product.brand.name} />
-            <p className={marketStyles.cardBrand}>{product.brand.name}</p>
-            <h2 className={marketStyles.cardName}>{product.name}</h2>
-            <p className={marketStyles.cardPrice}>{formatBRL(product.price)}</p>
-          </Link>
+          <ProductCard product={product} />
           <button
             type="button"
             className={styles.unsaveProduct}

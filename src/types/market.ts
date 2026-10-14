@@ -10,6 +10,10 @@ export type ProductImage = { id: string; url: string };
 // Um tamanho do produto, com o seu estoque
 export type ProductVariant = { id: string; size: string; stock: number };
 
+export type ProductCategory = "ROUPA" | "CALCADO" | "SHAPE" | "SKATE_MONTADO" | "PECAS" | "ACESSORIO" | "OUTRO";
+export type ProductDetail = { label: string; value: string };
+export type ProductFaq = { question: string; answer: string };
+
 export type Product = {
   id: string;
   name: string;
@@ -17,6 +21,13 @@ export type Product = {
   price: number;
   // Produtos desativados não aparecem na loja (só no painel do administrador)
   active: boolean;
+  category: ProductCategory;
+  // Ficha de detalhes (ex.: Madeira, Estado, Rodas)
+  details: ProductDetail[];
+  // Perguntas frequentes do produto
+  faq: ProductFaq[];
+  // Onde o produto está (bairro, cidade)
+  location: string | null;
   brand: Pick<Brand, "id" | "name">;
   images: ProductImage[];
   variants: ProductVariant[];
@@ -79,5 +90,9 @@ export type ProductInput = {
   price: number;
   brandId: string;
   active: boolean;
+  category: ProductCategory;
+  details: ProductDetail[];
+  faq: ProductFaq[];
+  location: string | null;
   variants: { size: string; stock: number }[];
 };

@@ -1,15 +1,17 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { SearchIcon } from "@/components/icons";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { marketService } from "@/services/market";
-import type { Brand, Product, ProductPage } from "@/types/market";
-import { formatBRL } from "@/utils/format";
+import type { Brand, ProductCategory, ProductPage } from "@/types/market";
+import { CATEGORY_LABEL } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import styles from "./Market.module.css";
-import { ProductPhoto } from "./shared";
+import { ProductCard } from "./ProductCard";
 
-// Vitrine da loja. A busca, a marca e a página ficam no endereço (?busca=...&marca=...&pagina=2),
+const CATEGORIES = Object.keys(CATEGORY_LABEL) as ProductCategory[];
+
+// Vitrine da loja. A busca, o tipo, a marca e a página ficam no endereço (?busca=...&tipo=...&marca=...&pagina=2),
 // então dá para compartilhar o link e o botão de voltar do navegador funciona.
 export function MarketPage() {
   usePageTitle("Market");
@@ -17,6 +19,8 @@ export function MarketPage() {
   const [params, setParams] = useSearchParams();
   const search = params.get("busca") ?? "";
   const brandId = params.get("marca") ?? "";
+  const tipo = params.get("tipo") ?? "";
+  const category = (CATEGORIES as string[]).includes(tipo) ? (tipo as ProductCategory) : "";
   const page = Math.max(1, Number(params.get("pagina")) || 1);
 
   const [text, setText] = useState(search);
@@ -36,7 +40,7 @@ export function MarketPage() {
     setLoading(true);
     setError("");
     marketService
-      .listProducts({ search, brandId, page })
+      .listProducts({ search, brandId, category, page })
       .then((result) => !ignore && setData(result))
       .catch((err) => !ignore && setError(apiMessage(err)))
       .finally(() => !ignore && setLoading(false));
@@ -44,7 +48,7 @@ export function MarketPage() {
     return () => {
       ignore = true;
     };
-  }, [search, brandId, page]);
+  }, [search, brandId, category, page]);
 
   // Muda um filtro e volta para a primeira página
   function change(key: string, value: string) {
@@ -61,7 +65,7 @@ export function MarketPage() {
   }
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
-  const filtering = search !== "" || brandId !== "";
+  const filtering = search !== "" || brandId !== "" || category !== "";
 
   return (
     <div className={styles.page}>
@@ -83,6 +87,23 @@ export function MarketPage() {
           </button>
         </form>
       </header>
+
+      <div className={styles.filters} role="group" aria-label="Filtrar por tipo">
+        <button type="button" className={category ? styles.chip : styles.chipActive} onClick={() => change("tipo", "")}>
+          Tudo
+        </button>
+        {CATEGORIES.map((value) => (
+          <button
+            key={value}
+            type="button"
+            className={value === category ? styles.chipActive : styles.chip}
+            aria-pressed={value === category}
+            onClick={() => change("tipo", value)}
+          >
+            {CATEGORY_LABEL[value]}
+          </button>
+        ))}
+      </div>
 
       {brands.length > 1 && (
         <div className={styles.filters} role="group" aria-label="Filtrar por marca">
@@ -146,21 +167,5 @@ export function MarketPage() {
         </nav>
       )}
     </div>
-  );
-}
-
-function ProductCard({ product }: { product: Product }) {
-  const soldOut = product.variants.every((variant) => variant.stock === 0);
-
-  return (
-    <Link to={`/market/produto/${product.id}`} className={styles.card}>
-      <div style={{ position: "relative" }}>
-        <ProductPhoto url={product.images[0]?.url} name={product.name} brandName={product.brand.name} />
-        {soldOut && <span className={styles.soldOut}>Esgotado</span>}
-      </div>
-      <p className={styles.cardBrand}>{product.brand.name}</p>
-      <h2 className={styles.cardName}>{product.name}</h2>
-      <p className={styles.cardPrice}>{formatBRL(product.price)}</p>
-    </Link>
   );
 }
