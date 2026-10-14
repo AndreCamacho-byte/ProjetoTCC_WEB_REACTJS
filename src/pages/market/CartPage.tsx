@@ -4,7 +4,7 @@ import { useCart } from "@/hooks/useCart";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { marketService } from "@/services/market";
 import type { CartItem } from "@/types/market";
-import { formatBRL } from "@/utils/format";
+import { formatBRL, ONE_SIZE } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import styles from "./Market.module.css";
 import { MAX_PER_ITEM, ProductPhoto, Stepper } from "./shared";
@@ -151,7 +151,8 @@ function CartRow({ item, busy, onQuantity, onRemove }: RowProps) {
           {product.name}
         </Link>
         <p className={styles.itemMeta}>
-          {product.brandName} · Tamanho {item.size} · {formatBRL(item.unitPrice)}
+          {product.brandName} · {item.size === ONE_SIZE ? "" : `Tamanho ${item.size} · `}
+          {formatBRL(item.unitPrice)}
         </p>
         {warning && <p className={styles.itemWarning}>{warning}</p>}
         <button type="button" className={styles.textButton} disabled={busy} onClick={onRemove} aria-label={`Tirar ${product.name} do carrinho`}>

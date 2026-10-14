@@ -8,7 +8,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
 import { marketService } from "@/services/market";
 import type { Address } from "@/types/market";
-import { formatBRL, formatCep } from "@/utils/format";
+import { formatBRL, formatCep, ONE_SIZE } from "@/utils/format";
 import { apiMessage, type FormErrors } from "@/utils/validation";
 import styles from "./Market.module.css";
 
@@ -210,7 +210,8 @@ export function CheckoutPage() {
           {cart?.items.map((item) => (
             <p key={item.variantId} className={styles.summaryRow}>
               <span>
-                {item.quantity}× {item.product.name} ({item.size})
+                {item.quantity}× {item.product.name}
+                {item.size === ONE_SIZE ? "" : ` (${item.size})`}
               </span>
               <span>{formatBRL(item.subtotal)}</span>
             </p>

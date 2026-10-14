@@ -5,7 +5,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
 import { marketService } from "@/services/market";
 import type { Order } from "@/types/market";
-import { formatBRL, formatCep, formatDate, orderNumber } from "@/utils/format";
+import { formatBRL, formatCep, formatDate, ONE_SIZE, orderNumber } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import styles from "./Market.module.css";
 import { StatusBadge } from "./shared";
@@ -117,7 +117,8 @@ export function OrderPage() {
                   <span>
                     {item.quantity}× {item.productName}
                     <small>
-                      {item.brandName} · Tamanho {item.size} · {formatBRL(item.unitPrice)} cada
+                      {item.brandName} · {item.size === ONE_SIZE ? "" : `Tamanho ${item.size} · `}
+                      {formatBRL(item.unitPrice)} cada
                     </small>
                   </span>
                   <strong>{formatBRL(item.subtotal)}</strong>

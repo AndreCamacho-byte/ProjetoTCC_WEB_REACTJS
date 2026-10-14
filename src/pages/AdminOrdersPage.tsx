@@ -3,7 +3,7 @@ import { AdminTabs } from "@/components/AdminTabs";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { adminMarketService } from "@/services/market";
 import type { AdminOrder, AdminOrderPage, OrderStatus } from "@/types/market";
-import { ORDER_STATUS_LABEL, formatBRL, formatCep, formatDate, orderNumber } from "@/utils/format";
+import { ONE_SIZE, ORDER_STATUS_LABEL, formatBRL, formatCep, formatDate, orderNumber } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import { StatusBadge } from "./market/shared";
 import styles from "./AdminUsersPage.module.css";
@@ -130,7 +130,8 @@ export function AdminOrdersPage() {
                   <ul className={styles.orderItems}>
                     {order.items.map((item) => (
                       <li key={item.id}>
-                        {item.quantity}× {item.productName} ({item.size})
+                        {item.quantity}× {item.productName}
+                        {item.size === ONE_SIZE ? "" : ` (${item.size})`}
                       </li>
                     ))}
                   </ul>

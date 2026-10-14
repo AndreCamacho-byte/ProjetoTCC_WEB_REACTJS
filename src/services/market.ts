@@ -6,18 +6,21 @@ import type {
   Order,
   OrderStatus,
   Product,
+  ProductCategory,
   ProductImage,
   ProductInput,
   ProductPage,
 } from "@/types/market";
 import { api } from "./api";
 
-type ListParams = { search?: string; brandId?: string; page?: number };
+type ListParams = { search?: string; brandId?: string; category?: ProductCategory | ""; ids?: string[]; page?: number };
 
-function listQuery({ search, brandId, page = 1 }: ListParams) {
+function listQuery({ search, brandId, category, ids, page = 1 }: ListParams) {
   const params = new URLSearchParams({ page: String(page) });
   if (search) params.set("search", search);
   if (brandId) params.set("brandId", brandId);
+  if (category) params.set("category", category);
+  if (ids?.length) params.set("ids", ids.join(","));
   return params;
 }
 
@@ -25,6 +28,8 @@ function listQuery({ search, brandId, page = 1 }: ListParams) {
 export const marketService = {
   listProducts: (params: ListParams = {}) => api<ProductPage>(`/products?${listQuery(params)}`),
   getProduct: (id: string) => api<Product>(`/products/${id}`),
+  // Mesmo tipo primeiro, depois a mesma marca
+  getRelated: (id: string) => api<Product[]>(`/products/${id}/related`),
   listBrands: () => api<Brand[]>("/brands"),
 
   // Salvos (exigem login e 12 anos ou mais)

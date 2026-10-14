@@ -8,6 +8,7 @@ vi.mock("@/services/market", () => ({
   marketService: {
     listProducts: vi.fn(),
     getProduct: vi.fn(),
+    getRelated: vi.fn(),
     listBrands: vi.fn(),
     saveProduct: vi.fn(),
     unsaveProduct: vi.fn(),
@@ -63,6 +64,10 @@ function makeProduct(overrides: Partial<Product> = {}): Product {
       { id: "variant-m", size: "M", stock: 5 },
       { id: "variant-g", size: "G", stock: 2 },
     ],
+    category: "ROUPA",
+    details: [],
+    faq: [],
+    location: null,
     createdAt: "2026-10-01T00:00:00.000Z",
     ...overrides,
   };
@@ -116,6 +121,8 @@ beforeEach(() => {
   withCart(makeCart([]));
   service.listBrands.mockResolvedValue([]);
   service.getSavedProducts.mockResolvedValue([]);
+  service.getRelated.mockResolvedValue([]);
+  localStorage.clear();
 });
 
 describe("Vitrine", () => {
@@ -140,14 +147,14 @@ describe("Vitrine", () => {
     service.listProducts.mockResolvedValue(page([]));
     renderAt(<MarketPage />, { path: "/market", route: "/market?busca=moletom" });
 
-    await waitFor(() => expect(service.listProducts).toHaveBeenCalledWith({ search: "moletom", brandId: "", page: 1 }));
+    await waitFor(() => expect(service.listProducts).toHaveBeenCalledWith({ search: "moletom", brandId: "", category: "", page: 1 }));
     expect(await screen.findByText("Nenhum produto encontrado com esse filtro.")).toBeInTheDocument();
 
     const input = screen.getByRole("searchbox", { name: "Buscar na loja" });
     await userEvent.clear(input);
     await userEvent.type(input, "  boné {Enter}");
 
-    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "boné", brandId: "", page: 1 }));
+    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "boné", brandId: "", category: "", page: 1 }));
   });
 
   it("filtra por marca quando há mais de uma", async () => {
@@ -160,7 +167,7 @@ describe("Vitrine", () => {
 
     await userEvent.click(await screen.findByRole("button", { name: "Outra" }));
 
-    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "", brandId: "brand-2", page: 1 }));
+    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "", brandId: "brand-2", category: "", page: 1 }));
   });
 
   it("avisa quando a loja está vazia e quando o servidor falha", async () => {
@@ -182,7 +189,7 @@ describe("Vitrine", () => {
     expect(screen.getByRole("button", { name: "Anterior" })).toBeDisabled();
     await userEvent.click(screen.getByRole("button", { name: "Próxima" }));
 
-    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "", brandId: "", page: 2 }));
+    await waitFor(() => expect(service.listProducts).toHaveBeenLastCalledWith({ search: "", brandId: "", category: "", page: 2 }));
   });
 });
 

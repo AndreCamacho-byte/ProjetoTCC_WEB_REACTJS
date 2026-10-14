@@ -807,3 +807,446 @@ a.order:hover {
 .saveButtonOn:hover {
   background: var(--brand-red);
 }
+
+/* =========================================================
+   Página do produto (layout novo) e cards no estilo de anúncio
+   ========================================================= */
+
+/* ---------- Cards ---------- */
+
+.categoryPill {
+  display: inline-block;
+  margin: 12px 0 4px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-wine);
+  color: var(--brand-offwhite);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card .cardName {
+  margin-top: 2px;
+}
+
+.cardMeta {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Fileiras com setas (relacionados e últimas visitas) ---------- */
+
+.carousel {
+  margin-top: 56px;
+}
+
+.carouselHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(1.375rem, 2.4vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.carouselActions {
+  display: flex;
+  gap: 8px;
+}
+
+.roundArrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: var(--brand-wine);
+  color: var(--brand-offwhite);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    transform 0.1s;
+}
+
+.roundArrow:hover {
+  background: var(--brand-red);
+}
+
+.roundArrow:active {
+  transform: scale(0.94);
+}
+
+.carouselTrack {
+  display: grid;
+  grid-auto-columns: calc((100% - 3 * 20px) / 4);
+  grid-auto-flow: column;
+  gap: 20px;
+  margin: 0;
+  padding: 0 0 8px;
+  overflow-x: auto;
+  list-style: none;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.carouselTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.carouselTrack > li {
+  scroll-snap-align: start;
+}
+
+/* ---------- Topo: fotos + compra ---------- */
+
+.pdTop {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.pdGallery {
+  display: flex;
+  gap: 12px;
+}
+
+/* Miniaturas em coluna, à esquerda da foto principal (como no design) */
+.pdThumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 84px;
+  flex-shrink: 0;
+}
+
+.pdThumbs .thumb,
+.pdThumbs .thumbActive {
+  width: 84px;
+  height: 84px;
+}
+
+.pdMainPhoto {
+  flex: 1;
+  min-width: 0;
+}
+
+.pdInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.categoryTag {
+  align-self: flex-start;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-sand);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pdInfo .productName {
+  margin: 12px 0 4px;
+}
+
+.pdBrand {
+  margin: 0 0 16px;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pdPrice {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.pdInstallments {
+  margin: 2px 0 16px;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.pdSummary {
+  margin: 0 0 24px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.pdQuantityRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pdQuantity {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  padding: 0 6px 0 16px;
+  border-radius: var(--radius-md);
+  background: var(--brand-sand);
+}
+
+.pdQuantity .stepper {
+  height: 40px;
+  border: none;
+  background: var(--color-white);
+}
+
+/* Quadrado preto do design: salvar o produto */
+.pdSave {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--brand-ink);
+  color: var(--brand-offwhite);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.pdSave:hover {
+  background: #3a3a3c;
+}
+
+.pdSaveOn {
+  background: var(--brand-wine);
+}
+
+.pdSaveOn:hover {
+  background: var(--brand-red);
+}
+
+.pdBuy {
+  width: 100%;
+  height: 52px;
+  font-size: 0.9375rem;
+}
+
+.pdPerks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pdPerks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.pdPerks svg {
+  flex-shrink: 0;
+  color: var(--brand-ink);
+}
+
+.pdPerks strong {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--brand-ink);
+}
+
+/* ---------- Abas de detalhes + foto ao lado ---------- */
+
+.pdDetails {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+  margin-top: 64px;
+}
+
+.pdTabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1.5px solid var(--brand-ink);
+}
+
+.pdTab,
+.pdTabActive {
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.pdTab:hover {
+  color: var(--brand-ink);
+}
+
+.pdTabActive {
+  border-bottom-color: var(--brand-red);
+  color: var(--brand-ink);
+}
+
+.pdPanel {
+  padding-top: 20px;
+}
+
+.pdLongText {
+  margin: 0;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.pdSpecs {
+  margin: 0;
+}
+
+.pdSpecs div {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2dccf;
+}
+
+.pdSpecs dt {
+  font-weight: 700;
+}
+
+.pdSpecs dd {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.pdDelivery {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.8;
+}
+
+.pdSideImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  background: var(--brand-sand);
+}
+
+/* ---------- Perguntas frequentes (sanfona) ---------- */
+
+.pdFaq {
+  margin-top: 56px;
+}
+
+.pdFaq .sectionTitle {
+  margin-bottom: 12px;
+}
+
+.faqItem {
+  border-bottom: 1.5px solid var(--brand-ink);
+}
+
+.faqItem summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.faqItem summary::-webkit-details-marker {
+  display: none;
+}
+
+.faqItem summary svg {
+  flex-shrink: 0;
+  transform: rotate(90deg);
+  transition: transform 0.2s;
+}
+
+.faqItem[open] summary svg {
+  transform: rotate(-90deg);
+}
+
+.faqItem p {
+  margin: 0 0 16px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Tablet e celular ---------- */
+
+@media (max-width: 960px) {
+  .pdTop,
+  .pdDetails {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .carouselTrack {
+    grid-auto-columns: calc((100% - 2 * 16px) / 3);
+    gap: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* No celular, as miniaturas vão para baixo da foto, em linha */
+  .pdGallery {
+    flex-direction: column-reverse;
+  }
+
+  .pdThumbs {
+    flex-direction: row;
+    width: auto;
+    overflow-x: auto;
+  }
+
+  .pdThumbs .thumb,
+  .pdThumbs .thumbActive {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+
+  .carouselTrack {
+    grid-auto-columns: 44%;
+    gap: 12px;
+  }
+
+  .pdSpecs div {
+    grid-template-columns: 110px minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faqItem summary svg {
+    transition: none;
+  }
+}

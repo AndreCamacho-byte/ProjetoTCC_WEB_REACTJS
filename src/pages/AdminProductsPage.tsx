@@ -3,14 +3,29 @@ import { AdminTabs } from "@/components/AdminTabs";
 import { CloseIcon, SearchIcon } from "@/components/icons";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { adminMarketService, marketService } from "@/services/market";
-import type { Brand, Product, ProductImage, ProductPage } from "@/types/market";
-import { formatBRL, parsePrice } from "@/utils/format";
+import type { Brand, Product, ProductCategory, ProductImage, ProductPage } from "@/types/market";
+import { CATEGORY_LABEL, ONE_SIZE, formatBRL, isOneSize, parsePrice } from "@/utils/format";
 import { fileToProductPhoto } from "@/utils/image";
 import { apiMessage } from "@/utils/validation";
 import { Dialog } from "./AdminUsersPage";
 import styles from "./AdminUsersPage.module.css";
 
 const MAX_PHOTOS = 5;
+const CATEGORIES = Object.keys(CATEGORY_LABEL) as ProductCategory[];
+
+// Modelo de ficha para cada tipo de produto: os nomes já vêm preenchidos, o admin só completa os valores
+const DETAIL_TEMPLATES: Record<ProductCategory, string[]> = {
+  ROUPA: ["Material", "Etiqueta"],
+  CALCADO: ["Material", "Solado"],
+  SHAPE: ["Madeira", "Tamanho", "Estado"],
+  SKATE_MONTADO: ["Shape", "Rodas", "Rolamento", "Lixa"],
+  PECAS: ["Tipo", "Medida", "Estado"],
+  ACESSORIO: ["Material"],
+  OUTRO: [],
+};
+
+type DetailRow = { label: string; value: string };
+type FaqRow = { question: string; answer: string };
 
 // Painel do administrador: produtos e marcas da loja
 export function AdminProductsPage() {
@@ -98,7 +113,7 @@ export function AdminProductsPage() {
             <tr>
               <th>Produto</th>
               <th>Preço</th>
-              <th>Tamanhos e estoque</th>
+              <th>Estoque e tipo</th>
               <th>Na loja</th>
               <th>
                 <span className={styles.srOnly}>Ações</span>
@@ -122,7 +137,12 @@ export function AdminProductsPage() {
                   </div>
                 </td>
                 <td>{formatBRL(product.price)}</td>
-                <td>{product.variants.map((variant) => `${variant.size}: ${variant.stock}`).join(" · ")}</td>
+                <td>
+                  {isOneSize(product.variants)
+                    ? `Estoque: ${product.variants[0].stock}`
+                    : product.variants.map((variant) => `${variant.size}: ${variant.stock}`).join(" · ")}
+                  <span className={styles.handle}>{CATEGORY_LABEL[product.category] ?? CATEGORY_LABEL.OUTRO}</span>
+                </td>
                 <td>
                   <span className={product.active ? styles.badge : styles.badgeOff}>{product.active ? "Sim" : "Desativado"}</span>
                 </td>
@@ -217,9 +237,20 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
   const [price, setPrice] = useState(initial ? initial.price.toFixed(2).replace(".", ",") : "");
   const [description, setDescription] = useState(initial?.description ?? "");
   const [active, setActive] = useState(initial?.active ?? true);
-  const [variants, setVariants] = useState<VariantRow[]>(
-    initial ? initial.variants.map((v) => ({ size: v.size, stock: String(v.stock) })) : [{ size: "", stock: "" }],
+  const [category, setCategory] = useState<ProductCategory>(initial?.category ?? "OUTRO");
+  const [location, setLocation] = useState(initial?.location ?? "");
+  // Produto sem tamanho (ex.: shape, boné) tem só um estoque
+  const [hasSizes, setHasSizes] = useState(initial ? !isOneSize(initial.variants) : true);
+  const [singleStock, setSingleStock] = useState(
+    initial && isOneSize(initial.variants) ? String(initial.variants[0].stock) : "",
   );
+  const [variants, setVariants] = useState<VariantRow[]>(
+    initial && !isOneSize(initial.variants)
+      ? initial.variants.map((v) => ({ size: v.size, stock: String(v.stock) }))
+      : [{ size: "", stock: "" }],
+  );
+  const [details, setDetails] = useState<DetailRow[]>(initial?.details ?? []);
+  const [faq, setFaq] = useState<FaqRow[]>(initial?.faq ?? []);
   const [images, setImages] = useState<ProductImage[]>(initial?.images ?? []);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -229,6 +260,20 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
 
   const setVariant = (index: number, change: Partial<VariantRow>) =>
     setVariants((rows) => rows.map((row, i) => (i === index ? { ...row, ...change } : row)));
+  const setDetail = (index: number, change: Partial<DetailRow>) =>
+    setDetails((rows) => rows.map((row, i) => (i === index ? { ...row, ...change } : row)));
+  const setFaqItem = (index: number, change: Partial<FaqRow>) =>
+    setFaq((rows) => rows.map((row, i) => (i === index ? { ...row, ...change } : row)));
+
+  // Ao trocar o tipo, a ficha ganha os campos do modelo que ainda não existem
+  function changeCategory(next: ProductCategory) {
+    setCategory(next);
+    setDetails((rows) => {
+      const existing = new Set(rows.map((row) => row.label.trim().toLowerCase()));
+      const missing = DETAIL_TEMPLATES[next].filter((label) => !existing.has(label.toLowerCase()));
+      return [...rows.filter((row) => row.label.trim() || row.value.trim()), ...missing.map((label) => ({ label, value: "" }))];
+    });
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -238,9 +283,24 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
     const value = parsePrice(price);
     if (!brandId) return setError("Cadastre uma marca antes (botão Marcas).");
     if (value === null) return setError("Informe o preço, ex.: 119,90");
-    if (variants.some((row) => !row.size.trim() || !/^\d+$/.test(row.stock))) {
-      return setError("Preencha o tamanho e o estoque (número inteiro) de cada linha.");
+    if (hasSizes) {
+      if (variants.some((row) => !row.size.trim() || !/^\d+$/.test(row.stock))) {
+        return setError("Preencha o tamanho e o estoque (número inteiro) de cada linha.");
+      }
+      if (variants.some((row) => row.size.trim().toLowerCase() === ONE_SIZE.toLowerCase())) {
+        return setError(`"${ONE_SIZE}" é reservado para produtos sem tamanho: desmarque a opção de tamanhos.`);
+      }
+    } else if (!/^\d+$/.test(singleStock)) {
+      return setError("Informe o estoque (número inteiro).");
     }
+
+    // Linhas da ficha e das perguntas só entram se estiverem completas
+    const filledDetails = details
+      .map((row) => ({ label: row.label.trim(), value: row.value.trim() }))
+      .filter((row) => row.label && row.value);
+    const filledFaq = faq
+      .map((row) => ({ question: row.question.trim(), answer: row.answer.trim() }))
+      .filter((row) => row.question && row.answer);
 
     const data = {
       name: name.trim(),
@@ -248,7 +308,13 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
       price: value,
       brandId,
       active,
-      variants: variants.map((row) => ({ size: row.size.trim(), stock: Number(row.stock) })),
+      category,
+      details: filledDetails,
+      faq: filledFaq,
+      location: location.trim() || null,
+      variants: hasSizes
+        ? variants.map((row) => ({ size: row.size.trim(), stock: Number(row.stock) }))
+        : [{ size: ONE_SIZE, stock: Number(singleStock) }],
     };
 
     setSaving(true);
@@ -332,14 +398,47 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
           </label>
         </div>
 
+        <div className={styles.formRow}>
+          <label>
+            Tipo de produto
+            <select value={category} onChange={(e) => changeCategory(e.target.value as ProductCategory)}>
+              {CATEGORIES.map((value) => (
+                <option key={value} value={value}>
+                  {CATEGORY_LABEL[value]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Local (opcional)
+            <input value={location} onChange={(e) => setLocation(e.target.value)} maxLength={80} placeholder="Santa Cecília, São Paulo" />
+          </label>
+        </div>
+
         <label>
           Descrição
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required minLength={2} maxLength={2000} />
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} required minLength={2} maxLength={5000} />
+          <small>O primeiro parágrafo aparece ao lado das fotos; o texto completo fica na aba Descrição.</small>
         </label>
 
         <fieldset className={styles.fieldset}>
           <legend>Tamanhos e estoque</legend>
-          {variants.map((row, index) => (
+          <label className={styles.checkbox}>
+            <input type="checkbox" checked={hasSizes} onChange={(e) => setHasSizes(e.target.checked)} />
+            Este produto tem tamanhos (P, M, G, 38, 40...)
+          </label>
+          {!hasSizes && (
+            <label>
+              Estoque
+              <input
+                inputMode="numeric"
+                placeholder="Quantidade disponível"
+                value={singleStock}
+                onChange={(e) => setSingleStock(e.target.value.replace(/\D/g, ""))}
+              />
+            </label>
+          )}
+          {hasSizes && variants.map((row, index) => (
             <div key={index} className={styles.variantRow}>
               <input
                 aria-label={`Tamanho ${index + 1}`}
@@ -365,9 +464,77 @@ function ProductDialog({ product: initial, brands, onChanged, onClose }: Product
               </button>
             </div>
           ))}
-          <button type="button" className={styles.linkButton} onClick={() => setVariants((rows) => [...rows, { size: "", stock: "" }])}>
-            + Adicionar tamanho
-          </button>
+          {hasSizes && (
+            <button type="button" className={styles.linkButton} onClick={() => setVariants((rows) => [...rows, { size: "", stock: "" }])}>
+              + Adicionar tamanho
+            </button>
+          )}
+        </fieldset>
+
+        <fieldset className={styles.fieldset}>
+          <legend>Ficha de detalhes</legend>
+          <small className={styles.hint}>
+            Aparece na aba Detalhes do produto. Linhas sem valor não são salvas.
+          </small>
+          {details.map((row, index) => (
+            <div key={index} className={styles.variantRow}>
+              <input
+                aria-label={`Nome do detalhe ${index + 1}`}
+                placeholder="Ex.: Madeira"
+                maxLength={40}
+                value={row.label}
+                onChange={(e) => setDetail(index, { label: e.target.value })}
+              />
+              <input
+                aria-label={`Valor do detalhe ${index + 1}`}
+                placeholder="Ex.: Maple canadense"
+                maxLength={200}
+                value={row.value}
+                onChange={(e) => setDetail(index, { value: e.target.value })}
+              />
+              <button type="button" className={styles.dangerButton} onClick={() => setDetails((rows) => rows.filter((_, i) => i !== index))}>
+                Tirar
+              </button>
+            </div>
+          ))}
+          {details.length < 15 && (
+            <button type="button" className={styles.linkButton} onClick={() => setDetails((rows) => [...rows, { label: "", value: "" }])}>
+              + Adicionar detalhe
+            </button>
+          )}
+        </fieldset>
+
+        <fieldset className={styles.fieldset}>
+          <legend>Perguntas frequentes</legend>
+          <small className={styles.hint}>
+            As perguntas gerais da loja (pagamento, frete, pedidos) já aparecem em todos os produtos.
+          </small>
+          {faq.map((row, index) => (
+            <div key={index} className={styles.faqRow}>
+              <input
+                aria-label={`Pergunta ${index + 1}`}
+                placeholder="Ex.: Vem com lixa?"
+                maxLength={150}
+                value={row.question}
+                onChange={(e) => setFaqItem(index, { question: e.target.value })}
+              />
+              <textarea
+                aria-label={`Resposta ${index + 1}`}
+                placeholder="Resposta"
+                maxLength={1000}
+                value={row.answer}
+                onChange={(e) => setFaqItem(index, { answer: e.target.value })}
+              />
+              <button type="button" className={styles.dangerButton} onClick={() => setFaq((rows) => rows.filter((_, i) => i !== index))}>
+                Tirar pergunta
+              </button>
+            </div>
+          ))}
+          {faq.length < 10 && (
+            <button type="button" className={styles.linkButton} onClick={() => setFaq((rows) => [...rows, { question: "", answer: "" }])}>
+              + Adicionar pergunta
+            </button>
+          )}
         </fieldset>
 
         <label className={styles.checkbox}>

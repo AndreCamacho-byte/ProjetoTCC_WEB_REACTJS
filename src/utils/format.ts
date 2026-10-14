@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/types/market";
+import type { OrderStatus, ProductCategory } from "@/types/market";
 import type { SkateLevel } from "@/types/user";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -56,3 +56,32 @@ export const SKATE_LEVEL_LABEL: Record<SkateLevel, string> = {
   AVANCADO: "Avançado",
   PROFISSIONAL: "Profissional",
 };
+
+export const CATEGORY_LABEL: Record<ProductCategory, string> = {
+  ROUPA: "Roupa",
+  CALCADO: "Calçado",
+  SHAPE: "Shape",
+  SKATE_MONTADO: "Skate montado",
+  PECAS: "Peças",
+  ACESSORIO: "Acessório",
+  OUTRO: "Outros",
+};
+
+// Produto sem tamanho tem um só, com este nome (o site esconde o seletor de tamanho)
+export const ONE_SIZE = "Único";
+export const isOneSize = (variants: { size: string }[]) => variants.length === 1 && variants[0].size === ONE_SIZE;
+
+// Parcelamento mostrado embaixo do preço (o pagamento é simulado)
+export const MAX_INSTALLMENTS = 3;
+export const installments = (price: number) => `ou ${MAX_INSTALLMENTS}x de ${formatBRL(price / MAX_INSTALLMENTS)} sem juros`;
+
+// Data do anúncio: "Hoje, 11:09", "Ontem, 18:30" ou "12/10/2026"
+const timeFormat = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
+export function listingDate(iso: string, now = new Date()) {
+  const date = new Date(iso);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const day = 24 * 60 * 60 * 1000;
+  if (date.getTime() >= startOfToday) return `Hoje, ${timeFormat.format(date)}`;
+  if (date.getTime() >= startOfToday - day) return `Ontem, ${timeFormat.format(date)}`;
+  return formatDate(iso);
+}

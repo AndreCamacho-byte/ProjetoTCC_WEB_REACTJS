@@ -608,3 +608,17 @@
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
+
+/* Pergunta frequente no formulário de produto: pergunta, resposta e botão de tirar */
+.faqRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #efebe3;
+}
+
+.faqRow .dangerButton {
+  align-self: flex-end;
+}
