@@ -1,6 +1,7 @@
 const AVATAR_SIZE = 256; // lado da foto de perfil, em pixels
 const PRODUCT_SIZE = 800; // lado da foto de produto
 const PRODUCT_MAX_BYTES = 560 * 1024; // o servidor aceita até 600 KB por foto
+const POST_MAX_SIDE = 1080; // lado maior da foto de um post
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB (limite do arquivo original, antes de reduzir)
 
 // Prepara a foto de perfil no próprio navegador: recorta um quadrado no centro da imagem,
@@ -14,12 +15,46 @@ export async function fileToAvatar(file: File): Promise<string> {
 export async function fileToProductPhoto(file: File): Promise<string> {
   const canvas = await squareCanvas(file, PRODUCT_SIZE);
 
+  return compress(canvas);
+}
+
+// Foto de post: mantém o formato original (em pé, deitada ou quadrada), com o lado maior em até 1080 px
+export async function fileToPostPhoto(file: File): Promise<string> {
+  checkFile(file);
+  const image = await loadImage(file);
+  const scale = Math.min(1, POST_MAX_SIDE / Math.max(image.naturalWidth, image.naturalHeight));
+  const width = Math.round(image.naturalWidth * scale);
+  const height = Math.round(image.naturalHeight * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Não foi possível processar a imagem neste navegador.");
+
+  context.fillStyle = "#ffffff";
+  context.fillRect(0, 0, width, height);
+  context.drawImage(image, 0, 0, width, height);
+  return compress(canvas);
+}
+
+// Converte para JPEG; se ainda ficar pesado, comprime um pouco mais
+function compress(canvas: HTMLCanvasElement) {
   let photo = "";
   for (const quality of [0.85, 0.75, 0.6, 0.45]) {
     photo = canvas.toDataURL("image/jpeg", quality);
     if (dataUrlBytes(photo) <= PRODUCT_MAX_BYTES) break;
   }
   return photo;
+}
+
+function checkFile(file: File) {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error("A imagem é grande demais. Escolha uma de até 15 MB.");
+  }
 }
 
 // Tamanho, em bytes, do arquivo guardado em uma data URL base64
@@ -30,12 +65,7 @@ export function dataUrlBytes(dataUrl: string) {
 }
 
 async function squareCanvas(file: File, size: number) {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Escolha um arquivo de imagem (JPG, PNG ou WebP).");
-  }
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error("A imagem é grande demais. Escolha uma de até 15 MB.");
-  }
+  checkFile(file);
 
   const image = await loadImage(file);
   const side = Math.min(image.naturalWidth, image.naturalHeight);

@@ -13,6 +13,8 @@ export type User = {
   emailVerifiedAt: string | null;
   // Data de nascimento (ex.: "2005-05-12T00:00:00.000Z"). null = conta antiga, idade não verificada
   birthDate: string | null;
+  // Preenchido quando um administrador suspende a conta
+  suspendedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };

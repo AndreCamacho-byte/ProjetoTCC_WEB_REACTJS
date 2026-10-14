@@ -47,9 +47,9 @@ export async function api<T>(path: string, options: { method?: string; body?: un
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    // O servidor avisou que este login não vale mais (senha trocada em outro aparelho, conta excluída...):
+    // O servidor avisou que este login não vale mais (senha trocada em outro aparelho, conta excluída ou suspensa...):
     // apaga o token e avisa o site, que volta para o estado "deslogado"
-    if (data?.code === "SESSION_EXPIRED") {
+    if (data?.code === "SESSION_EXPIRED" || data?.code === "ACCOUNT_SUSPENDED") {
       tokenStorage.clear();
       window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
     }

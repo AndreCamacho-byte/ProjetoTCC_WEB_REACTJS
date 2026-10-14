@@ -101,3 +101,17 @@
   font-size: 0.8125rem;
   line-height: 1.4;
 }
+
+/* Aviso dos termos, embaixo do botão de criar conta */
+.legal {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.legal a {
+  color: var(--brand-ink);
+  font-weight: 600;
+}

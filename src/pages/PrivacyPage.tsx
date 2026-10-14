@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "9 de outubro de 2026";
+const LAST_UPDATE = "14 de outubro de 2026";
 
 // Política de Privacidade. O texto descreve o que o site faz de verdade com os dados:
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
@@ -54,6 +54,12 @@ export function PrivacyPage() {
             <strong>Foto de perfil</strong>, se você quiser enviar uma.
           </li>
           <li>
+            <strong>Bio e nível de skate</strong>, se você quiser preencher, para aparecer no seu perfil.
+          </li>
+          <li>
+            <strong>Posts, fotos e comentários</strong> que você publica na Comunidade.
+          </li>
+          <li>
             <strong>Endereço de entrega</strong> (nome de quem recebe, CEP, rua, número, complemento, bairro, cidade e
             estado), quando você fecha um pedido no Market. O endereço fica guardado junto com o pedido.
           </li>
@@ -61,6 +67,9 @@ export function PrivacyPage() {
         <h3>Dados gerados pelo uso</h3>
         <ul>
           <li>Datas de criação da conta e de confirmação do email.</li>
+          <li>
+            <strong>Curtidas e quem você segue</strong> na Comunidade.
+          </li>
           <li>
             <strong>Carrinho e pedidos do Market</strong>: os produtos, tamanhos e quantidades que você escolheu, o
             valor e a situação de cada pedido.
@@ -142,8 +151,13 @@ export function PrivacyPage() {
         <p>
           Alguns desses serviços mantêm servidores fora do Brasil, então os seus dados podem ser armazenados em
           outros países. Dentro do Clutch, os administradores do site podem ver o seu nome, email e idade, e podem
-          corrigir ou remover contas para moderar a plataforma. Eles também veem os pedidos do Market, com os itens
-          e o endereço de entrega, para acompanhar cada pedido.
+          corrigir, suspender ou remover contas e apagar posts e comentários para moderar a plataforma. Eles também
+          veem os pedidos do Market, com os itens e o endereço de entrega, para acompanhar cada pedido.
+        </p>
+        <p>
+          Na Comunidade, outras pessoas com conta no Clutch veem o seu nome, @, foto de perfil, bio, nível de skate,
+          os seus posts e comentários e quantas pessoas você segue e te seguem. O seu email e a sua idade nunca
+          aparecem para outros usuários. Quem não tem conta não vê a Comunidade.
         </p>
       </section>
 
@@ -159,8 +173,8 @@ export function PrivacyPage() {
         <h2>7. Por quanto tempo guardamos</h2>
         <p>
           Os seus dados ficam guardados enquanto a sua conta existir. Quando você exclui a conta, apagamos o seu
-          cadastro, a foto de perfil, o carrinho, os pedidos (com o endereço de entrega) e os conteúdos ligados a ela. Códigos de confirmação e links de redefinição de
-          senha expiram sozinhos (em até 24 horas e em 1 hora, respectivamente).
+          cadastro, a foto de perfil, os seus posts, fotos, comentários, curtidas e seguidores, o carrinho e os
+          pedidos (com o endereço de entrega). Códigos de confirmação e links de redefinição de senha expiram sozinhos (em até 24 horas e em 1 hora, respectivamente).
         </p>
       </section>
 

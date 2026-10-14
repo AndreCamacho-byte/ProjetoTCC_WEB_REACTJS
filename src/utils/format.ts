@@ -1,4 +1,5 @@
 import type { OrderStatus } from "@/types/market";
+import type { SkateLevel } from "@/types/user";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dateFormat = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -35,3 +36,23 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
 
 // Número curto do pedido, para mostrar na tela (o id completo é longo demais)
 export const orderNumber = (id: string) => `#${id.slice(0, 8).toUpperCase()}`;
+
+// "2026-10-14T12:00:00Z" -> "agora", "há 5 min", "há 3 h", "há 2 dias" ou a data (depois de uma semana)
+export function timeAgo(iso: string, now = new Date()) {
+  const seconds = Math.max(0, (now.getTime() - new Date(iso).getTime()) / 1000);
+  if (seconds < 60) return "agora";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `há ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `há ${hours} h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return days === 1 ? "há 1 dia" : `há ${days} dias`;
+  return formatDate(iso);
+}
+
+export const SKATE_LEVEL_LABEL: Record<SkateLevel, string> = {
+  INICIANTE: "Iniciante",
+  INTERMEDIARIO: "Intermediário",
+  AVANCADO: "Avançado",
+  PROFISSIONAL: "Profissional",
+};

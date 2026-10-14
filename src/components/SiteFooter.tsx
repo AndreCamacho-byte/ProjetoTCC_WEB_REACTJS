@@ -5,7 +5,8 @@ import styles from "./SiteFooter.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
 
-// Links das redes sociais: troque "#" pelos endereços reais quando existirem
+// Links das redes sociais: troque "#" pelos endereços reais quando existirem.
+// Enquanto o endereço for "#", o ícone não aparece (um ícone que não leva a lugar nenhum confunde).
 const SOCIAL_LINKS = [
   { label: "Instagram", href: "#", Icon: InstagramIcon },
   { label: "Twitter", href: "#", Icon: TwitterIcon },
@@ -32,6 +33,7 @@ export function SiteFooter() {
               <li><Link to="/market">Marketplace</Link></li>
               <li><Link to="/sobre">Sobre nós</Link></li>
               <li><Link to="/privacidade">Política de Privacidade</Link></li>
+              <li><Link to="/termos">Termos de Uso</Link></li>
             </ul>
           </nav>
 
@@ -48,7 +50,7 @@ export function SiteFooter() {
 
         <div className={styles.bottom}>
           <ul className={styles.social}>
-            {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+            {SOCIAL_LINKS.filter((link) => link.href !== "#").map(({ label, href, Icon }) => (
               <li key={label}>
                 <a href={href} aria-label={label}>
                   <Icon size={18} />

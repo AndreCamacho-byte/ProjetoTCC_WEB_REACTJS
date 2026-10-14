@@ -3,7 +3,8 @@ import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { accountService } from "@/services/account";
 import { ApiError } from "@/services/api";
-import type { User } from "@/types/user";
+import type { SkateLevel, User } from "@/types/user";
+import { SKATE_LEVEL_LABEL } from "@/utils/format";
 import { MIN_AGE, ageFrom, ageStatus, formatBirthDate } from "@/utils/age";
 import { fileToAvatar } from "@/utils/image";
 import { getErrorMessage, todayIso, validateBirthDate, validateNewPassword } from "@/utils/validation";
@@ -128,12 +129,19 @@ function ProfileSection({ user }: { user: User }) {
   const { updateUser } = useAuth();
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
+  const [bio, setBio] = useState(user.bio ?? "");
+  const [skateLevel, setSkateLevel] = useState<SkateLevel | "">(user.skateLevel ?? "");
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<Feedback>(null);
 
   const cleanName = name.trim();
   const cleanUsername = username.trim().toLowerCase();
-  const changed = cleanName !== user.name || cleanUsername !== user.username;
+  const cleanBio = bio.trim();
+  const changed =
+    cleanName !== user.name ||
+    cleanUsername !== user.username ||
+    cleanBio !== (user.bio ?? "") ||
+    skateLevel !== (user.skateLevel ?? "");
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -149,10 +157,14 @@ function ProfileSection({ user }: { user: User }) {
       const updated = await accountService.updateProfile({
         ...(cleanName !== user.name ? { name: cleanName } : {}),
         ...(cleanUsername !== user.username ? { username: cleanUsername } : {}),
+        ...(cleanBio !== (user.bio ?? "") ? { bio: cleanBio || null } : {}),
+        ...(skateLevel !== (user.skateLevel ?? "") ? { skateLevel: skateLevel || null } : {}),
       });
       updateUser(updated);
       setName(updated.name);
       setUsername(updated.username);
+      setBio(updated.bio ?? "");
+      setSkateLevel(updated.skateLevel ?? "");
       setFeedback({ type: "ok", text: "Dados salvos." });
     } catch (error) {
       setFeedback({ type: "error", text: errorText(error) });
@@ -183,6 +195,22 @@ function ProfileSection({ user }: { user: User }) {
             />
           </span>
           <small>De 3 a 20 caracteres: letras minúsculas, números e _.</small>
+        </label>
+        <label>
+          Bio
+          <textarea value={bio} onChange={(e) => setBio(e.target.value)} maxLength={160} rows={3} />
+          <small>Aparece no seu perfil da comunidade. Até 160 caracteres ({160 - bio.length} restantes).</small>
+        </label>
+        <label>
+          Nível de skate
+          <select value={skateLevel} onChange={(e) => setSkateLevel(e.target.value as SkateLevel | "")}>
+            <option value="">Prefiro não dizer</option>
+            {(Object.keys(SKATE_LEVEL_LABEL) as SkateLevel[]).map((level) => (
+              <option key={level} value={level}>
+                {SKATE_LEVEL_LABEL[level]}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           Email

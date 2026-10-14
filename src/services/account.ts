@@ -1,9 +1,9 @@
-import type { AuthResponse, User } from "@/types/user";
+import type { AuthResponse, SkateLevel, User } from "@/types/user";
 import { api } from "./api";
 
 // Configurações da própria conta
 export const accountService = {
-  updateProfile: (data: { name?: string; username?: string }) =>
+  updateProfile: (data: { name?: string; username?: string; bio?: string | null; skateLevel?: SkateLevel | null }) =>
     api<User>("/users/me", { method: "PATCH", body: data }),
 
   // Troca a senha. A resposta traz um token novo, porque os logins antigos deixam de valer
