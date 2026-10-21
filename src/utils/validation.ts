@@ -26,6 +26,14 @@ export function todayIso() {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
 
+// @username: o mesmo formato do backend (3 a 20 letras minúsculas, números ou _)
+export const cleanUsername = (username: string) => username.trim().replace(/^@/, "").toLowerCase();
+export function validateUsername(username: string) {
+  const value = cleanUsername(username);
+  if (!value) return "Escolha seu @username";
+  if (!/^[a-z0-9_]{3,20}$/.test(value)) return "Use de 3 a 20 letras minúsculas, números ou _";
+}
+
 export function validateNewPassword(password: string) {
   if (password.length < 8) return "A senha precisa ter pelo menos 8 caracteres";
 }

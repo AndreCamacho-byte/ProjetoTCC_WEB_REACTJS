@@ -52,7 +52,7 @@ function MeetupDetails({ id }: { id: string }) {
   }
 
   function handleCancel() {
-    if (!window.confirm("Cancelar este encontro? Quem confirmou presença vai ver que foi cancelado.")) return;
+    if (!window.confirm("Cancelar este encontro para todo mundo? Quem confirmou presença vai ver que foi cancelado.")) return;
     void act(() => spotService.cancel(id));
   }
 
@@ -139,14 +139,14 @@ function MeetupDetails({ id }: { id: string }) {
                 {meetup.full ? "Lotado" : "Vou nessa"}
               </button>
             )}
-            {meetup.joinedByMe && !meetup.isCreator && (
+            {meetup.joinedByMe && (
               <button type="button" className={styles.secondary} disabled={busy} onClick={() => act(() => spotService.leave(id))}>
                 Não vou mais
               </button>
             )}
             {meetup.canCancel && (
               <button type="button" className={styles.danger} disabled={busy} onClick={handleCancel}>
-                Cancelar encontro
+                Cancelar para todos (equipe)
               </button>
             )}
           </div>

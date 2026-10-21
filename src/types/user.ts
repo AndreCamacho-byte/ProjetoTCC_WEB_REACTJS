@@ -4,6 +4,8 @@ export type User = {
   id: string;
   name: string;
   username: string;
+  // Falso nas contas antigas, cujo @ foi gerado a partir do email: o site pede para escolher um
+  usernameChosen?: boolean;
   email: string;
   avatarUrl: string | null;
   bio: string | null;
@@ -22,4 +24,11 @@ export type User = {
 export type AuthResponse = {
   user: User;
   token: string;
+};
+
+// Primeira etapa do login: senha certa, falta o código enviado por email
+export type LoginChallenge = {
+  requiresCode: true;
+  email: string;
+  message: string;
 };

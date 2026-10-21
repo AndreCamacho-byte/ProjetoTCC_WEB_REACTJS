@@ -719,6 +719,7 @@
 /* ---------- Perfil no estilo Instagram ---------- */
 
 .avatarButton {
+  flex-shrink: 0;
   padding: 0;
   border: none;
   border-radius: 50%;

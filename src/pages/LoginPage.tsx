@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useId, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/Button";
 import { FormAlert } from "@/components/FormAlert";
@@ -14,6 +14,10 @@ import styles from "./AuthForm.module.css";
 
 type Field = "email" | "password";
 
+// Espera entre um reenvio do código e outro (o backend também só manda um por minuto)
+const RESEND_SECONDS = 60;
+
+// Login em duas etapas: email e senha; depois, o código de 6 dígitos que chega por email
 export function LoginPage() {
   usePageTitle("Entrar");
 
@@ -26,6 +30,8 @@ export function LoginPage() {
   // Email da conta que tentou entrar sem ter confirmado (mostra o aviso com "Reenviar email")
   const [unverifiedEmail, setUnverifiedEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  // Preenchido quando a senha confere: a tela passa a pedir o código enviado para este email
+  const [codeSentTo, setCodeSentTo] = useState("");
 
   // Se o usuário foi mandado para o login ao tentar abrir uma página protegida, volta para ela depois
   const state = location.state as { from?: string; message?: string } | null;
@@ -52,8 +58,8 @@ export function LoginPage() {
 
     setLoading(true);
     try {
-      signIn(await authService.login(values));
-      navigate(redirectTo, { replace: true });
+      const challenge = await authService.login(values);
+      setCodeSentTo(challenge.email);
     } catch (error) {
       if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
         setUnverifiedEmail(values.email.trim());
@@ -63,6 +69,20 @@ export function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (codeSentTo) {
+    return (
+      <CodeStep
+        email={codeSentTo}
+        resend={() => authService.login(values)}
+        onBack={() => setCodeSentTo("")}
+        onDone={(response) => {
+          signIn(response);
+          navigate(redirectTo, { replace: true });
+        }}
+      />
+    );
   }
 
   return (
@@ -119,6 +139,113 @@ export function LoginPage() {
         <Button type="submit" loading={loading} className={styles.submit}>
           Entrar
         </Button>
+      </form>
+    </AuthLayout>
+  );
+}
+
+type CodeStepProps = {
+  email: string;
+  resend: () => Promise<unknown>;
+  onBack: () => void;
+  onDone: (response: Awaited<ReturnType<typeof authService.verifyLogin>>) => void;
+};
+
+// Segunda etapa: digitar o código que chegou no email
+function CodeStep({ email, resend, onBack, onDone }: CodeStepProps) {
+  const codeId = useId();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [wait, setWait] = useState(RESEND_SECONDS);
+
+  // Contagem regressiva para liberar o "Reenviar código"
+  useEffect(() => {
+    if (wait <= 0) return;
+    const timer = setTimeout(() => setWait((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [wait]);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setError("");
+    setInfo("");
+    if (code.length !== 6) return setError("Digite os 6 dígitos do código.");
+
+    setLoading(true);
+    try {
+      onDone(await authService.verifyLogin(email, code));
+    } catch (err) {
+      setError(getErrorMessage(err));
+      setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setError("");
+    setInfo("");
+    setWait(RESEND_SECONDS);
+    try {
+      await resend();
+      setInfo("Mandamos um código novo. Use o mais recente.");
+      setCode("");
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }
+
+  return (
+    <AuthLayout
+      title="Confira seu email"
+      subtitle="Só mais um passo para entrar"
+      switcher={
+        <>
+          <span>Não reconhece este pedido?</span>
+          <Link to="/esqueci-senha">Trocar a senha</Link>
+        </>
+      }
+    >
+      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+        <p className={styles.text}>
+          Para proteger sua conta, enviamos um código de 6 dígitos para <strong>{email}</strong>. Digite abaixo para
+          entrar.
+        </p>
+
+        {error && <FormAlert>{error}</FormAlert>}
+        {info && (
+          <p className={styles.success} role="status">
+            {info}
+          </p>
+        )}
+
+        <div className={styles.codeField}>
+          <label htmlFor={codeId}>Código de acesso</label>
+          <input
+            id={codeId}
+            className={styles.codeInput}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="000000"
+            maxLength={6}
+            value={code}
+            // Aceita só números (inclusive ao colar o código com espaços)
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            autoFocus
+          />
+        </div>
+
+        <Button type="submit" loading={loading}>
+          Entrar
+        </Button>
+
+        <p className={styles.hint}>O código vale por 10 minutos. Não chegou? Confira a caixa de spam.</p>
+        <button type="button" className={styles.linkButton} onClick={handleResend} disabled={wait > 0}>
+          {wait > 0 ? `Reenviar código em ${wait}s` : "Reenviar código"}
+        </button>
+        <button type="button" className={styles.linkButton} onClick={onBack}>
+          Voltar e trocar email ou senha
+        </button>
       </form>
     </AuthLayout>
   );

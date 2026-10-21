@@ -336,6 +336,7 @@
 
 /* Clicar na foto mostra ela ampliada */
 .avatarZoom {
+  flex-shrink: 0;
   padding: 0;
   border: none;
   border-radius: 50%;

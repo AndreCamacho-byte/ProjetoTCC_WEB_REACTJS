@@ -6,18 +6,20 @@ import { TextField } from "@/components/TextField";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { authService } from "@/services/auth";
 import {
+  cleanUsername,
   getErrorMessage,
   todayIso,
   validateBirthDate,
   validateEmail,
   validateName,
   validateNewPassword,
+  validateUsername,
   type FormErrors,
 } from "@/utils/validation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
 
-type Field = "name" | "email" | "birthDate" | "password" | "confirmPassword";
+type Field = "name" | "username" | "email" | "birthDate" | "password" | "confirmPassword";
 
 export function RegisterPage() {
   usePageTitle("Criar conta");
@@ -26,7 +28,7 @@ export function RegisterPage() {
   const location = useLocation();
   // O formulário "Come Ride With Us" da home manda o email já digitado
   const initialEmail = (location.state as { email?: string } | null)?.email ?? "";
-  const [values, setValues] = useState({ name: "", email: initialEmail, birthDate: "", password: "", confirmPassword: "" });
+  const [values, setValues] = useState({ name: "", username: "", email: initialEmail, birthDate: "", password: "", confirmPassword: "" });
   const [errors, setErrors] = useState<FormErrors<Field>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,6 +44,7 @@ export function RegisterPage() {
 
     const nextErrors: FormErrors<Field> = {
       name: validateName(values.name),
+      username: validateUsername(values.username),
       email: validateEmail(values.email),
       birthDate: validateBirthDate(values.birthDate),
       password: validateNewPassword(values.password),
@@ -55,6 +58,7 @@ export function RegisterPage() {
       // A conta nasce sem confirmação: em vez de entrar, vai para a tela "Confira seu email"
       const { email } = await authService.register({
         name: values.name,
+        username: cleanUsername(values.username),
         email: values.email,
         birthDate: values.birthDate,
         password: values.password,
@@ -87,6 +91,16 @@ export function RegisterPage() {
           value={values.name}
           onChange={(e) => update("name", e.target.value)}
           error={errors.name}
+        />
+        <TextField
+          label="@username"
+          placeholder="ex.: tony_hawk"
+          autoComplete="username"
+          autoCapitalize="none"
+          value={values.username}
+          onChange={(e) => update("username", e.target.value)}
+          error={errors.username}
+          hint="É assim que a galera vai te achar. O seu email nunca aparece para ninguém."
         />
         <TextField
           label="Email"

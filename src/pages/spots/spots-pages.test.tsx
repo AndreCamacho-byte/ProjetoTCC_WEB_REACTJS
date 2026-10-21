@@ -221,13 +221,27 @@ describe("encontro", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("lotado");
   });
 
-  it("quem criou pode cancelar, depois de confirmar", async () => {
+  it("quem criou só desmarca a ida e pode confirmar de novo depois", async () => {
+    service.getMeetup.mockResolvedValue(detail({ joinedByMe: true, isCreator: true }));
+    service.leave.mockResolvedValue(detail({ joinedByMe: false, isCreator: true, participantCount: 2 }));
+    open();
+
+    // Sem botão de cancelar para todos: isso é só da equipe
+    expect(screen.queryByRole("button", { name: /Cancelar para todos/ })).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Não vou mais" }));
+
+    expect(service.leave).toHaveBeenCalledWith(MEETUP_ID);
+    expect(service.cancel).not.toHaveBeenCalled();
+    expect(await screen.findByRole("button", { name: "Vou nessa" })).toBeEnabled();
+  });
+
+  it("a equipe pode cancelar para todos, depois de confirmar", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     service.getMeetup.mockResolvedValue(detail({ joinedByMe: true, isCreator: true, canCancel: true }));
     service.cancel.mockResolvedValue(detail({ joinedByMe: true, isCreator: true, cancelled: true }));
     open();
 
-    await userEvent.click(await screen.findByRole("button", { name: "Cancelar encontro" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Cancelar para todos (equipe)" }));
 
     expect(service.cancel).toHaveBeenCalledWith(MEETUP_ID);
     expect(await screen.findByText("Este encontro foi cancelado.")).toBeInTheDocument();

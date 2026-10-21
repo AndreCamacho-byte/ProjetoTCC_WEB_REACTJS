@@ -1,13 +1,18 @@
-import type { AuthResponse, User } from "@/types/user";
+import type { AuthResponse, LoginChallenge, User } from "@/types/user";
 import { api } from "./api";
 
 export const authService = {
   // Cria a conta e dispara o email de confirmação (não faz login)
-  register: (data: { name: string; email: string; password: string; birthDate: string }) =>
+  register: (data: { name: string; username: string; email: string; password: string; birthDate: string }) =>
     api<{ email: string; message: string }>("/auth/register", { method: "POST", body: data }),
 
+  // Primeira etapa do login: confere a senha e manda um código por email (chamar de novo reenvia)
   login: (data: { email: string; password: string }) =>
-    api<AuthResponse>("/auth/login", { method: "POST", body: data }),
+    api<LoginChallenge>("/auth/login", { method: "POST", body: data }),
+
+  // Segunda etapa: o código do email devolve o login
+  verifyLogin: (email: string, code: string) =>
+    api<AuthResponse>("/auth/login/verify", { method: "POST", body: { email, code } }),
 
   // Confirma o email com o token do link e já devolve o login
   verifyEmail: (token: string) => api<AuthResponse>("/auth/verify-email", { method: "POST", body: { token } }),

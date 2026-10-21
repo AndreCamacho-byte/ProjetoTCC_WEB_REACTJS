@@ -7,6 +7,7 @@ vi.mock("@/services/auth", () => ({
   authService: {
     register: vi.fn(),
     login: vi.fn(),
+    verifyLogin: vi.fn(),
     verifyCode: vi.fn(),
     resendVerification: vi.fn(),
     forgotPassword: vi.fn(),
@@ -40,6 +41,7 @@ const setDate = (label: string, value: string) => fireEvent.change(field(label),
 describe("Cadastro", () => {
   async function fillValid() {
     await userEvent.type(field("Nome"), "Tony Teste");
+    await userEvent.type(field("@username"), "Tony_Hawk");
     await userEvent.type(field("Email"), "tony@clutch.test");
     setDate("Data de nascimento", "2000-01-15");
     await userEvent.type(field("Senha"), "skate1234");
@@ -47,9 +49,9 @@ describe("Cadastro", () => {
   }
   const submit = () => userEvent.click(screen.getByRole("button", { name: "Criar conta" }));
 
-  it("mostra os cinco campos", () => {
+  it("mostra os seis campos", () => {
     renderAt(<RegisterPage />);
-    for (const label of ["Nome", "Email", "Data de nascimento", "Senha", "Confirmar senha"]) {
+    for (const label of ["Nome", "@username", "Email", "Data de nascimento", "Senha", "Confirmar senha"]) {
       expect(field(label)).toBeInTheDocument();
     }
   });
@@ -60,6 +62,7 @@ describe("Cadastro", () => {
     await submit();
 
     expect(screen.getByText("Informe seu nome")).toBeInTheDocument();
+    expect(screen.getByText("Escolha seu @username")).toBeInTheDocument();
     expect(screen.getByText("Informe seu email")).toBeInTheDocument();
     expect(screen.getByText("Informe sua data de nascimento")).toBeInTheDocument();
     expect(screen.getByText("A senha precisa ter pelo menos 8 caracteres")).toBeInTheDocument();
@@ -109,12 +112,26 @@ describe("Cadastro", () => {
     await waitFor(() => expect(currentPath()).toBe("/verifique-email"));
     expect(service.register).toHaveBeenCalledWith({
       name: "Tony Teste",
+      // O @ vai em minúsculas
+      username: "tony_hawk",
       email: "tony@clutch.test",
       birthDate: "2000-01-15",
       password: "skate1234",
     });
     expect(currentState()).toEqual({ email: "tony@clutch.test", justSent: true });
     expect(signIn).not.toHaveBeenCalled();
+  });
+
+  it("recusa @username com caracteres inválidos", async () => {
+    renderAt(<RegisterPage />);
+    await fillValid();
+    await userEvent.clear(field("@username"));
+    await userEvent.type(field("@username"), "tony hawk!");
+
+    await submit();
+
+    expect(screen.getByText("Use de 3 a 20 letras minúsculas, números ou _")).toBeInTheDocument();
+    expect(service.register).not.toHaveBeenCalled();
   });
 
   it("avisa quando o email já tem conta", async () => {
@@ -151,27 +168,62 @@ describe("Login", () => {
     expect(service.login).not.toHaveBeenCalled();
   });
 
-  it("entra e vai para a home", async () => {
+  const challenge = { requiresCode: true as const, email: "tony@clutch.test", message: "ok" };
+
+  it("com a senha certa pede o código do email e só então entra", async () => {
     const response = { user: makeUser(), token: "tok" };
-    service.login.mockResolvedValue(response);
+    service.login.mockResolvedValue(challenge);
+    service.verifyLogin.mockResolvedValue(response);
     renderAt(<LoginPage />, { path: "/login" });
     await fill();
 
     await submit();
 
+    expect(await screen.findByText("tony@clutch.test")).toBeInTheDocument();
+    expect(signIn).not.toHaveBeenCalled();
+    await userEvent.type(field("Código de acesso"), "123456");
+    await submit();
+
     await waitFor(() => expect(currentPath()).toBe("/"));
     expect(service.login).toHaveBeenCalledWith({ email: "tony@clutch.test", password: "skate1234" });
+    expect(service.verifyLogin).toHaveBeenCalledWith("tony@clutch.test", "123456");
     expect(signIn).toHaveBeenCalledWith(response);
   });
 
-  it("depois de entrar, volta para a página protegida que a pessoa tentou abrir", async () => {
-    service.login.mockResolvedValue({ user: makeUser(), token: "tok" });
+  it("depois do código, volta para a página protegida que a pessoa tentou abrir", async () => {
+    service.login.mockResolvedValue(challenge);
+    service.verifyLogin.mockResolvedValue({ user: makeUser(), token: "tok" });
     renderAt(<LoginPage />, { path: "/login", state: { from: "/conta" } });
     await fill();
+    await submit();
 
+    await userEvent.type(await screen.findByLabelText("Código de acesso"), "123456");
     await submit();
 
     await waitFor(() => expect(currentPath()).toBe("/conta"));
+  });
+
+  it("mostra o erro do código errado e continua na tela do código", async () => {
+    service.login.mockResolvedValue(challenge);
+    service.verifyLogin.mockRejectedValue(new ApiError("Código incorreto. Confira o email e tente de novo.", 400, [], "INVALID_CODE"));
+    renderAt(<LoginPage />, { path: "/login" });
+    await fill();
+    await submit();
+
+    await userEvent.type(await screen.findByLabelText("Código de acesso"), "000000");
+    await submit();
+
+    expect(await screen.findByText(/Código incorreto/)).toBeInTheDocument();
+    expect(signIn).not.toHaveBeenCalled();
+  });
+
+  it("o reenvio do código começa bloqueado por 1 minuto", async () => {
+    service.login.mockResolvedValue(challenge);
+    renderAt(<LoginPage />, { path: "/login" });
+    await fill();
+    await submit();
+
+    expect(await screen.findByRole("button", { name: /Reenviar código em/ })).toBeDisabled();
   });
 
   it("mostra o erro de email ou senha incorretos e continua na tela", async () => {

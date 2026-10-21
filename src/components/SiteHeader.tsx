@@ -210,7 +210,16 @@ function UserMenu() {
               Painel admin
             </Link>
           )}
-          <button type="button" className={styles.signOut} onClick={signOut}>
+          <button
+            type="button"
+            className={styles.signOut}
+            onClick={() => {
+              // Pede confirmação: no celular é fácil tocar em "Sair" sem querer
+              if (!window.confirm("Quer mesmo sair da sua conta?")) return;
+              setOpen(false);
+              signOut();
+            }}
+          >
             Sair
           </button>
         </div>

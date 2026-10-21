@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { UsernameGate } from "@/components/UsernameGate";
 
 // Estrutura das páginas do site: cabeçalho, conteúdo da página e rodapé
 export function SiteLayout() {
@@ -19,6 +20,7 @@ export function SiteLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <UsernameGate />
     </div>
   );
 }
