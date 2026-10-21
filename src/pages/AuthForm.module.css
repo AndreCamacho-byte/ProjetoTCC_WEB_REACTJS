@@ -115,3 +115,23 @@
   color: var(--brand-ink);
   font-weight: 600;
 }
+
+/* Botão com cara de link (reenviar código, voltar) */
+.linkButton {
+  align-self: center;
+  padding: 4px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--brand-wine);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.linkButton:disabled {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  cursor: default;
+}

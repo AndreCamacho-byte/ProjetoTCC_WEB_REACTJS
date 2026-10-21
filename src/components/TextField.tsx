@@ -4,12 +4,15 @@ import styles from "./TextField.module.css";
 type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   error?: string;
+  // Texto de ajuda embaixo do campo (some quando aparece um erro)
+  hint?: string;
 };
 
 // Campo de formulário do Clutch. Com type="password" ganha o botão de mostrar/ocultar senha.
-export function TextField({ label, error, type = "text", ...inputProps }: TextFieldProps) {
+export function TextField({ label, error, hint, type = "text", ...inputProps }: TextFieldProps) {
   const id = useId();
   const errorId = `${id}-error`;
+  const hintId = `${id}-hint`;
   const isPassword = type === "password";
   const [showPassword, setShowPassword] = useState(false);
 
@@ -26,7 +29,7 @@ export function TextField({ label, error, type = "text", ...inputProps }: TextFi
             .filter(Boolean)
             .join(" ")}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-describedby={error ? errorId : hint ? hintId : undefined}
           {...inputProps}
         />
         {isPassword && (
@@ -40,10 +43,16 @@ export function TextField({ label, error, type = "text", ...inputProps }: TextFi
           </button>
         )}
       </div>
-      {error && (
+      {error ? (
         <p id={errorId} className={styles.error}>
           {error}
         </p>
+      ) : (
+        hint && (
+          <p id={hintId} className={styles.hint}>
+            {hint}
+          </p>
+        )
       )}
     </div>
   );
