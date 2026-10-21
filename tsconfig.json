@@ -1,7 +1,11 @@
 {
+  // Mapa das configurações do TypeScript, usado pelo editor (VS Code) para saber qual regra vale em
+  // cada arquivo. Os testes entram aqui só para o editor entender os imports "@/..." neles.
+  // O build (npm run build) confere apenas o site e o Vite: um erro em teste não impede o deploy.
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.test.json" }
   ]
 }
