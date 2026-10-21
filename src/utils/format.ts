@@ -1,4 +1,5 @@
 import type { OrderStatus, ProductCategory } from "@/types/market";
+import type { SpotStatus, SpotType } from "@/types/spot";
 import type { SkateLevel } from "@/types/user";
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -84,4 +85,29 @@ export function listingDate(iso: string, now = new Date()) {
   if (date.getTime() >= startOfToday) return `Hoje, ${timeFormat.format(date)}`;
   if (date.getTime() >= startOfToday - day) return `Ontem, ${timeFormat.format(date)}`;
   return formatDate(iso);
+}
+
+export const SPOT_TYPE_LABEL: Record<SpotType, string> = {
+  STREET: "Street",
+  PISTA: "Pista",
+  BOWL: "Bowl",
+  MINI_RAMP: "Mini ramp",
+  DIY: "DIY",
+  OUTRO: "Outro",
+};
+
+export const SPOT_STATUS_LABEL: Record<SpotStatus, string> = {
+  PENDENTE: "Aguardando aprovação",
+  APROVADO: "Aprovado",
+  RECUSADO: "Recusado",
+};
+
+// Data de um encontro: "sáb., 25/10 às 15:00"
+const meetupDay = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit" });
+export const meetupDate = (iso: string) => `${meetupDay.format(new Date(iso))} às ${timeFormat.format(new Date(iso))}`;
+
+// Valor para <input type="datetime-local"> (horário do aparelho, sem segundos)
+export function toDateTimeInput(date: Date) {
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return local.toISOString().slice(0, 16);
 }

@@ -5,6 +5,7 @@ const TABS = [
   { to: "/admin", label: "Usuários" },
   { to: "/admin/produtos", label: "Produtos" },
   { to: "/admin/pedidos", label: "Pedidos" },
+  { to: "/admin/spots", label: "Spots" },
 ];
 
 // Abas do painel do administrador

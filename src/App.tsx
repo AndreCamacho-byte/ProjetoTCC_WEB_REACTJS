@@ -7,6 +7,7 @@ import { SiteLayout } from "./layouts/SiteLayout";
 import { AccountSettingsPage } from "./pages/AccountSettingsPage";
 import { AdminOrdersPage } from "./pages/AdminOrdersPage";
 import { AdminProductsPage } from "./pages/AdminProductsPage";
+import { AdminSpotsPage } from "./pages/AdminSpotsPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
@@ -28,13 +29,26 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { EventsPage } from "./pages/spots/EventsPage";
+import { ExplorePage } from "./pages/spots/ExplorePage";
+import { MeetupPage } from "./pages/spots/MeetupPage";
+import { NewSpotPage } from "./pages/spots/NewSpotPage";
+import { SpotPage } from "./pages/spots/SpotPage";
 import { TermsPage } from "./pages/TermsPage";
 
 // Áreas com idade mínima de 12 anos: spots (Explorar), encontros (Eventos) e marketplace
 const AGE_RESTRICTED = ["/explorar", "/eventos", "/market"];
 
-// Páginas que já existem; as outras seções do menu ainda mostram "Em breve"
-const READY: Record<string, ReactNode> = { "/market": <MarketPage />, "/comunidade": <CommunityPage /> };
+// Páginas de cada seção do menu (uma seção sem página aqui mostra "Em breve")
+const READY: Record<string, ReactNode> = {
+  "/explorar": <ExplorePage />,
+  "/comunidade": <CommunityPage />,
+  "/market": <MarketPage />,
+  "/eventos": <EventsPage />,
+};
+
+// Telas de spots e encontros: idade mínima; a própria página mostra um convite para quem não entrou
+const spotArea = (area: string, page: ReactNode) => <AgeGate area={area}>{page}</AgeGate>;
 
 // Telas da loja que exigem login (carrinho, finalizar compra e pedidos), além da idade mínima
 const buyer = (page: ReactNode) => (
@@ -70,6 +84,9 @@ function App() {
             </AgeGate>
           }
         />
+        <Route path="/explorar/novo" element={spotArea("Explorar", <NewSpotPage />)} />
+        <Route path="/explorar/spot/:id" element={spotArea("Explorar", <SpotPage />)} />
+        <Route path="/eventos/:id" element={spotArea("Eventos", <MeetupPage />)} />
         <Route path="/market/carrinho" element={buyer(<CartPage />)} />
         <Route path="/market/finalizar" element={buyer(<CheckoutPage />)} />
         <Route path="/market/pedidos" element={buyer(<OrdersPage />)} />
@@ -140,6 +157,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminProductsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/spots"
+          element={
+            <AdminRoute>
+              <AdminSpotsPage />
             </AdminRoute>
           }
         />
