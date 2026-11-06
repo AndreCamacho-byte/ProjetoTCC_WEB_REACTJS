@@ -25,6 +25,7 @@ const AccountSettingsPage = page(() => import("./pages/AccountSettingsPage"), "A
 const AdminOrdersPage = page(() => import("./pages/AdminOrdersPage"), "AdminOrdersPage");
 const AdminProductsPage = page(() => import("./pages/AdminProductsPage"), "AdminProductsPage");
 const AdminSpotsPage = page(() => import("./pages/AdminSpotsPage"), "AdminSpotsPage");
+const AdminReportsPage = page(() => import("./pages/AdminReportsPage"), "AdminReportsPage");
 const AdminUsersPage = page(() => import("./pages/AdminUsersPage"), "AdminUsersPage");
 const ChatPage = page(() => import("./pages/chat/ChatPage"), "ChatPage");
 const CommunityPage = page(() => import("./pages/community/CommunityPage"), "CommunityPage");
@@ -174,6 +175,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminSpotsPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/denuncias"
+          element={
+            <AdminRoute>
+              <AdminReportsPage />
             </AdminRoute>
           }
         />

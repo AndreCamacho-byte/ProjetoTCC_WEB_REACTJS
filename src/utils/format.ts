@@ -1,3 +1,4 @@
+import type { ReportReason, ReportTarget } from "@/services/moderation";
 import type { OrderStatus, ProductCategory } from "@/types/market";
 import type { SpotStatus, SpotType } from "@/types/spot";
 import type { SkateLevel } from "@/types/user";
@@ -111,3 +112,20 @@ export function toDateTimeInput(date: Date) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
   return local.toISOString().slice(0, 16);
 }
+
+// Motivos de denúncia, na ordem em que aparecem na janela de denunciar
+export const REPORT_REASON_LABEL: Record<ReportReason, string> = {
+  SPAM: "Spam ou propaganda",
+  OFENSA: "Ofensa ou discurso de ódio",
+  ASSEDIO: "Assédio ou bullying",
+  CONTEUDO_IMPROPRIO: "Conteúdo impróprio (nudez, violência)",
+  RISCO: "Risco à segurança de alguém",
+  OUTRO: "Outro motivo",
+};
+
+export const REPORT_TARGET_LABEL: Record<ReportTarget, string> = {
+  POST: "Post",
+  COMMENT: "Comentário",
+  USER: "Perfil",
+  MESSAGE: "Mensagem",
+};

@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "16 de outubro de 2026";
+const LAST_UPDATE = "6 de novembro de 2026";
 
 // Política de Privacidade. O texto descreve o que o site faz de verdade com os dados:
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
@@ -74,6 +74,10 @@ export function PrivacyPage() {
             <strong>Curtidas e quem você segue</strong> na Comunidade.
           </li>
           <li>
+            <strong>Denúncias e bloqueios</strong>: quem você bloqueou e as denúncias que você fez (o motivo, os detalhes
+            que escreveu e um trecho do que foi denunciado).
+          </li>
+          <li>
             <strong>Carrinho e pedidos do Market</strong>: os produtos, tamanhos e quantidades que você escolheu, o
             valor e a situação de cada pedido.
           </li>
@@ -116,6 +120,10 @@ export function PrivacyPage() {
           <li>
             <strong>Manter o site seguro</strong>, prevenindo abusos e acessos indevidos (legítimo interesse).
           </li>
+          <li>
+            <strong>Moderar a Comunidade</strong>: analisar denúncias e aplicar bloqueios (legítimo interesse e proteção
+            de quem usa o site).
+          </li>
         </ul>
       </section>
 
@@ -155,7 +163,8 @@ export function PrivacyPage() {
         <p>
           Alguns desses serviços mantêm servidores fora do Brasil, então os seus dados podem ser armazenados em
           outros países. Dentro do Clutch, os administradores do site podem ver o seu nome, email e idade, e podem
-          corrigir, suspender ou remover contas e apagar posts e comentários para moderar a plataforma. Eles também
+          corrigir, suspender ou remover contas e apagar posts e comentários para moderar a plataforma. Nas denúncias,
+          a equipe vê o nome e o @ de quem denunciou; a pessoa denunciada não fica sabendo quem foi. Eles também
           veem os pedidos do Market, com os itens e o endereço de entrega, para acompanhar cada pedido.
         </p>
         <p>
@@ -166,7 +175,8 @@ export function PrivacyPage() {
         <p>
           As mensagens do chat só aparecem para as duas pessoas da conversa. A equipe do Clutch não lê as conversas no
           site; elas ficam guardadas no banco de dados para funcionar. O chat só existe entre amigos (pessoas que se
-          seguem).
+          seguem). A única exceção é a denúncia: quando alguém denuncia uma mensagem que recebeu, a equipe vê um trecho
+          daquela mensagem (só dela) para decidir o que fazer.
         </p>
       </section>
 

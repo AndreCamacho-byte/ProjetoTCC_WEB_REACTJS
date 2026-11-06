@@ -58,6 +58,7 @@ function makePost(overrides: Partial<Post> = {}): Post {
     likedByMe: false,
     savedByMe: false,
     canDelete: false,
+    isMine: false,
     ...overrides,
   };
 }
@@ -69,6 +70,7 @@ function makeComment(overrides: Partial<Comment> = {}): Comment {
     createdAt: new Date().toISOString(),
     author: otherAuthor,
     canDelete: false,
+    isMine: false,
     ...overrides,
   };
 }
@@ -233,6 +235,7 @@ describe("Perfil", () => {
     followedByMe: false,
     followsMe: false,
     isMe: false,
+    blockedByMe: false,
   };
 
   const open = () => renderAt(<ProfilePage />, { path: "/u/:username", route: "/u/leticia" });

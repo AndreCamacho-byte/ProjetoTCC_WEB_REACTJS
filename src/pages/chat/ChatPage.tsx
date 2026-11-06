@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent, type Keyboard
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { ChatIcon, ChevronLeftIcon, SendIcon } from "@/components/icons";
+import { ReportDialog } from "@/components/ReportDialog";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
 import { chatService, notifyChatRead } from "@/services/chat";
@@ -132,6 +133,7 @@ function Thread({ id, onActivity }: { id: string; onActivity: () => void }) {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
+  const [reported, setReported] = useState<string | null>(null);
   const list = useRef<HTMLDivElement>(null);
   // Última mensagem conhecida: a atualização automática pede só o que veio depois dela
   const lastId = useRef<string | undefined>(undefined);
@@ -307,12 +309,34 @@ function Thread({ id, onActivity }: { id: string; onActivity: () => void }) {
             )}
             {message.sharedPost && !message.post && <span className={styles.unavailable}>Este post não está mais disponível.</span>}
             {message.content}
-            <time className={styles.bubbleTime} dateTime={message.createdAt}>
-              {timeAgo(message.createdAt)}
-            </time>
+            <span className={styles.bubbleTime}>
+              <time dateTime={message.createdAt}>{timeAgo(message.createdAt)}</time>
+              {!message.mine && (
+                <>
+                  {" · "}
+                  <button
+                    type="button"
+                    className={styles.reportMessage}
+                    aria-label={`Denunciar mensagem de ${other.name}`}
+                    onClick={() => setReported(message.id)}
+                  >
+                    Denunciar
+                  </button>
+                </>
+              )}
+            </span>
           </div>
         ))}
       </div>
+
+      {reported && (
+        <ReportDialog
+          targetType="MESSAGE"
+          targetId={reported}
+          description={`a mensagem de @${other.username}`}
+          onClose={() => setReported(null)}
+        />
+      )}
 
       {error && (
         <p className={styles.error} role="alert">

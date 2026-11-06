@@ -22,6 +22,8 @@ export type Post = {
   savedByMe: boolean;
   // Verdadeiro para quem escreveu e para administradores
   canDelete: boolean;
+  // É de quem está vendo (não aparece o botão de denunciar)
+  isMine: boolean;
 };
 
 // Páginas do feed e dos comentários: nextCursor null = não tem mais
@@ -33,6 +35,8 @@ export type Comment = {
   createdAt: string;
   author: Author;
   canDelete: boolean;
+  // É de quem está vendo (não aparece o botão de denunciar)
+  isMine: boolean;
 };
 
 export type CommentPage = { comments: Comment[]; nextCursor: string | null };
@@ -47,6 +51,8 @@ export type Profile = Author & {
   // A pessoa segue quem está vendo ("Segue você"). Os dois juntos = amigos.
   followsMe: boolean;
   isMe: boolean;
+  // Quem está vendo bloqueou esta pessoa
+  blockedByMe: boolean;
 };
 
 // Pessoa nas listas de seguidores e de quem alguém segue

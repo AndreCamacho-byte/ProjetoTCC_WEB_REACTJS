@@ -6,6 +6,7 @@ const TABS = [
   { to: "/admin/produtos", label: "Produtos" },
   { to: "/admin/pedidos", label: "Pedidos" },
   { to: "/admin/spots", label: "Spots" },
+  { to: "/admin/denuncias", label: "Denúncias" },
 ];
 
 // Abas do painel do administrador
