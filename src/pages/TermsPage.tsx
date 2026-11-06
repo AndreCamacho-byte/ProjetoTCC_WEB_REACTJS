@@ -39,8 +39,8 @@ export function TermsPage() {
           <li>Use seus dados verdadeiros e confirme o seu email para entrar.</li>
           <li>A conta é pessoal: não compartilhe a sua senha. Você responde pelo que for feito com ela.</li>
           <li>
-            Spots, encontros e a loja só são liberados a partir dos {MIN_AGE} anos. Se você tem menos de 18 anos, use o
-            Clutch com o conhecimento dos seus pais ou responsáveis.
+            O Clutch é para maiores de {MIN_AGE} anos: não é permitido criar conta com menos que isso. Se você tem
+            menos de 18 anos, use o Clutch com o conhecimento dos seus pais ou responsáveis.
           </li>
           <li>
             Você pode excluir a sua conta quando quiser, em <Link to="/conta">Configurações</Link>. Isso apaga os seus

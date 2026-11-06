@@ -49,9 +49,14 @@ describe("validateBirthDate", () => {
     expect(validateBirthDate("1800-01-01")).toBe("Informe uma data válida");
   });
 
-  it("aceita hoje e datas passadas", () => {
-    expect(validateBirthDate(todayIso())).toBeUndefined();
+  it("aceita datas passadas de quem tem 13 anos ou mais", () => {
     expect(validateBirthDate("2005-05-12")).toBeUndefined();
+  });
+
+  it("recusa quem tem menos de 13 anos (o site é para maiores de 13)", () => {
+    expect(validateBirthDate(todayIso())).toBe("O Clutch é para maiores de 13 anos");
+    const year = new Date().getFullYear();
+    expect(validateBirthDate(`${year - 12}-01-01`)).toBe("O Clutch é para maiores de 13 anos");
   });
 });
 

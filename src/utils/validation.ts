@@ -1,4 +1,5 @@
 import { ApiError } from "@/services/api";
+import { MIN_AGE, ageFrom } from "./age";
 
 export type FormErrors<T extends string> = Partial<Record<T, string>>;
 
@@ -18,6 +19,7 @@ export function validateBirthDate(birthDate: string) {
   if (!birthDate) return "Informe sua data de nascimento";
   if (birthDate > todayIso()) return "A data não pode estar no futuro";
   if (birthDate < "1900-01-01") return "Informe uma data válida";
+  if (ageFrom(birthDate) < MIN_AGE) return `O Clutch é para maiores de ${MIN_AGE} anos`;
 }
 
 // Hoje no formato AAAA-MM-DD (o mesmo do campo de data), no fuso do navegador
@@ -51,7 +53,7 @@ export function getErrorMessage(error: unknown) {
   if (error.code === "SESSION_EXPIRED") return "Sua sessão foi encerrada. Entre de novo.";
   if (error.code === "INVALID_TOKEN") return "Este link é inválido ou expirou. Peça um novo email de confirmação.";
   // O 409 do @ repetido não é "email já cadastrado", e o email que não saiu não é "servidor fora do ar"
-  if (error.code === "USERNAME_TAKEN" || error.code === "EMAIL_FAILED") return error.message;
+  if (error.code === "USERNAME_TAKEN" || error.code === "EMAIL_FAILED" || error.code === "UNDERAGE_ACCOUNT") return error.message;
 
   switch (error.status) {
     case 0:

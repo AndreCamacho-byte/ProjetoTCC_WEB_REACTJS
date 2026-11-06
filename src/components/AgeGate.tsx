@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { MIN_AGE, ageStatus } from "@/utils/age";
 
 // Regra de idade dos spots/encontros e do marketplace:
-// - menor de 12 anos: área bloqueada
+// - menor de 13 anos: área bloqueada
 // - conta sem data de nascimento (criada antes de o cadastro pedir): bloqueada até informar a data
 // Quem não está logado vê a página normalmente. O backend aplica a mesma regra nas rotas
 // dessas áreas (middleware requireMinAge), então esconder a tela não é a única proteção.

@@ -122,12 +122,13 @@ export function PrivacyPage() {
       <section>
         <h2>4. Crianças e adolescentes</h2>
         <p>
-          As áreas de spots, encontros e marketplace são liberadas somente a partir dos {MIN_AGE} anos. Contas sem
-          data de nascimento informada ficam com essas áreas bloqueadas até a data ser preenchida.
+          O Clutch é para maiores de {MIN_AGE} anos. O cadastro pede a data de nascimento e não aceita quem tem menos
+          que isso, e não coletamos dados de crianças de propósito. Contas antigas sem data de nascimento ficam com
+          spots, encontros e marketplace bloqueados até a data ser preenchida.
         </p>
         <p>
-          Se você tem menos de {MIN_AGE} anos, crie e use a sua conta apenas com o conhecimento e o consentimento
-          do seu pai, mãe ou responsável. Responsáveis podem pedir a exclusão da conta de uma criança pelo email{" "}
+          Se descobrirmos que uma conta é de alguém com menos de {MIN_AGE} anos, ela é bloqueada e os dados são
+          apagados. Pais e responsáveis podem pedir a exclusão da conta de uma criança pelo email{" "}
           <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </section>
