@@ -54,7 +54,7 @@ export function ProductPage() {
   const [tab, setTab] = useState<Tab | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [recent, setRecent] = useState<Product[]>([]);
-  // Salvar exige login e a idade da loja (12 anos)
+  // Salvar exige login e a idade da loja (13 anos)
   const canSave = user !== null && ageStatus(user) === "OK";
 
   usePageTitle(product?.name ?? "Market");

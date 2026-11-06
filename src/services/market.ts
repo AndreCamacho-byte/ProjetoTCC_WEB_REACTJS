@@ -24,7 +24,7 @@ function listQuery({ search, brandId, category, ids, page = 1 }: ListParams) {
   return params;
 }
 
-// Loja: o catálogo é público; carrinho e pedidos exigem login (e 12 anos ou mais)
+// Loja: o catálogo é público; carrinho e pedidos exigem login (e 13 anos ou mais)
 export const marketService = {
   listProducts: (params: ListParams = {}) => api<ProductPage>(`/products?${listQuery(params)}`),
   getProduct: (id: string) => api<Product>(`/products/${id}`),
@@ -32,7 +32,7 @@ export const marketService = {
   getRelated: (id: string) => api<Product[]>(`/products/${id}/related`),
   listBrands: () => api<Brand[]>("/brands"),
 
-  // Salvos (exigem login e 12 anos ou mais)
+  // Salvos (exigem login e 13 anos ou mais)
   saveProduct: (id: string) => api<{ savedByMe: boolean }>(`/products/${id}/save`, { method: "PUT" }),
   unsaveProduct: (id: string) => api<{ savedByMe: boolean }>(`/products/${id}/save`, { method: "DELETE" }),
   getSavedProducts: () => api<Product[]>("/saved/products"),

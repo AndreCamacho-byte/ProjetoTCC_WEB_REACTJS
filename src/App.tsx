@@ -45,7 +45,7 @@ const NewSpotPage = page(() => import("./pages/spots/NewSpotPage"), "NewSpotPage
 const SpotPage = page(() => import("./pages/spots/SpotPage"), "SpotPage");
 const TermsPage = page(() => import("./pages/TermsPage"), "TermsPage");
 
-// Áreas com idade mínima de 12 anos: spots (Explorar), encontros (Eventos) e marketplace
+// Áreas com idade mínima de 13 anos: spots (Explorar), encontros (Eventos) e marketplace
 const AGE_RESTRICTED = ["/explorar", "/eventos", "/market"];
 
 // Páginas de cada seção do menu (uma seção sem página aqui mostra "Em breve")

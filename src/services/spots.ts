@@ -11,7 +11,7 @@ import type {
 } from "@/types/spot";
 import { api } from "./api";
 
-// Spots no mapa e encontros. Tudo exige login e 12 anos ou mais.
+// Spots no mapa e encontros. Tudo exige login e 13 anos ou mais.
 export const spotService = {
   list: () => api<SpotPin[]>("/spots"),
   mine: () => api<MySpot[]>("/spots/mine"),

@@ -109,19 +109,19 @@ describe("AgeGate", () => {
     </AgeGate>
   );
 
-  it("libera quem tem 12 anos ou mais", () => {
-    loginAs(makeUser({ birthDate: yearsAgo(12) }));
+  it("libera quem tem 13 anos ou mais", () => {
+    loginAs(makeUser({ birthDate: yearsAgo(13) }));
     renderAt(page);
     expect(screen.getByText("mapa de spots")).toBeInTheDocument();
   });
 
-  it("bloqueia menores de 12 anos", () => {
+  it("bloqueia menores de 13 anos", () => {
     loginAs(makeUser({ birthDate: yearsAgo(10) }));
     renderAt(page);
 
     expect(screen.queryByText("mapa de spots")).not.toBeInTheDocument();
     expect(screen.getByText("Acesso restrito")).toBeInTheDocument();
-    expect(screen.getByText(/a partir dos 12 anos/)).toBeInTheDocument();
+    expect(screen.getByText(/a partir dos 13 anos/)).toBeInTheDocument();
   });
 
   it("bloqueia conta sem data de nascimento e leva às configurações", () => {

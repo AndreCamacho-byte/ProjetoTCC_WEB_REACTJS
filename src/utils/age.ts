@@ -1,10 +1,10 @@
 import type { User } from "@/types/user";
 
-// Idade mínima para usar os spots/encontros e o marketplace (a mesma regra existe no backend)
-export const MIN_AGE = 12;
+// Idade mínima para ter conta no Clutch: o cadastro recusa quem tem menos (a mesma regra existe no backend)
+export const MIN_AGE = 13;
 
 // - UNVERIFIED: conta sem data de nascimento (criada antes de o cadastro pedir)
-// - UNDERAGE: menor de 12 anos
+// - UNDERAGE: menor de 13 anos
 // - OK: liberada
 export type AgeStatus = "UNVERIFIED" | "UNDERAGE" | "OK";
 
