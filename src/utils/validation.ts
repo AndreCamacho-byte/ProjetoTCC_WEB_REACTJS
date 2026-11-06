@@ -50,6 +50,8 @@ export function getErrorMessage(error: unknown) {
   if (error.code === "RATE_LIMITED") return error.message;
   if (error.code === "SESSION_EXPIRED") return "Sua sessão foi encerrada. Entre de novo.";
   if (error.code === "INVALID_TOKEN") return "Este link é inválido ou expirou. Peça um novo email de confirmação.";
+  // O 409 do @ repetido não é "email já cadastrado", e o email que não saiu não é "servidor fora do ar"
+  if (error.code === "USERNAME_TAKEN" || error.code === "EMAIL_FAILED") return error.message;
 
   switch (error.status) {
     case 0:

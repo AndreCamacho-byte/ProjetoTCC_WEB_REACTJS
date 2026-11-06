@@ -91,6 +91,15 @@ describe("getErrorMessage", () => {
     expect(getErrorMessage(new ApiError("x", 400, [], "INVALID_TOKEN"))).toContain("inválido ou expirou");
   });
 
+  it("@ repetido não vira 'email já cadastrado', e o email que não saiu tem a mensagem própria", () => {
+    expect(getErrorMessage(new ApiError("Este @username já está em uso", 409, [], "USERNAME_TAKEN"))).toBe(
+      "Este @username já está em uso",
+    );
+    expect(
+      getErrorMessage(new ApiError("Não conseguimos enviar o email agora. Tente de novo em alguns minutos.", 503, [], "EMAIL_FAILED")),
+    ).toContain("Não conseguimos enviar o email");
+  });
+
   it("repassa a mensagem do servidor para erros do código de 6 dígitos", () => {
     expect(getErrorMessage(new ApiError("Código incorreto. Confira o email.", 400, [], "INVALID_CODE"))).toBe(
       "Código incorreto. Confira o email.",
