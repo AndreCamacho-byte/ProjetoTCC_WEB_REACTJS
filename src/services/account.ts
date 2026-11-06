@@ -19,4 +19,7 @@ export const accountService = {
   removeAvatar: () => api<User>("/users/me/avatar", { method: "DELETE" }),
 
   deleteAccount: (password: string) => api<null>("/users/me", { method: "DELETE", body: { password } }),
+
+  // Esquece todos os aparelhos lembrados: o próximo login em qualquer um pede o código de novo
+  forgetDevices: () => api<{ forgotten: number }>("/users/me/devices", { method: "DELETE" }),
 };

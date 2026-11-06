@@ -24,6 +24,8 @@ export type User = {
 export type AuthResponse = {
   user: User;
   token: string;
+  // Só quando a pessoa marcou "Lembrar este aparelho"
+  deviceToken?: string;
 };
 
 // Primeira etapa do login: senha certa, falta o código enviado por email

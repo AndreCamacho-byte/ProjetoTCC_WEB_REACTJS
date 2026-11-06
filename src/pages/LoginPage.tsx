@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { ApiError } from "@/services/api";
 import { authService } from "@/services/auth";
+import { deviceTokens } from "@/services/deviceTokens";
+import type { AuthResponse } from "@/types/user";
 import { getErrorMessage, validateEmail, type FormErrors } from "@/utils/validation";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./AuthForm.module.css";
@@ -58,8 +60,10 @@ export function LoginPage() {
 
     setLoading(true);
     try {
-      const challenge = await authService.login(values);
-      setCodeSentTo(challenge.email);
+      // Se este aparelho foi lembrado, a chave vai junto e o login termina sem código
+      const response = await authService.login({ ...values, deviceToken: deviceTokens.get(values.email) });
+      if ("token" in response) return finish(response);
+      setCodeSentTo(response.email);
     } catch (error) {
       if (error instanceof ApiError && error.code === "EMAIL_NOT_VERIFIED") {
         setUnverifiedEmail(values.email.trim());
@@ -71,6 +75,11 @@ export function LoginPage() {
     }
   }
 
+  function finish(response: AuthResponse) {
+    signIn(response);
+    navigate(redirectTo, { replace: true });
+  }
+
   if (codeSentTo) {
     return (
       <CodeStep
@@ -78,8 +87,10 @@ export function LoginPage() {
         resend={() => authService.login(values)}
         onBack={() => setCodeSentTo("")}
         onDone={(response) => {
-          signIn(response);
-          navigate(redirectTo, { replace: true });
+          // Marcou "Lembrar este aparelho": guarda a chave; não marcou: esquece a que havia
+          if (response.deviceToken) deviceTokens.set(codeSentTo, response.deviceToken);
+          else deviceTokens.remove(codeSentTo);
+          finish(response);
         }}
       />
     );
@@ -148,7 +159,7 @@ type CodeStepProps = {
   email: string;
   resend: () => Promise<unknown>;
   onBack: () => void;
-  onDone: (response: Awaited<ReturnType<typeof authService.verifyLogin>>) => void;
+  onDone: (response: AuthResponse) => void;
 };
 
 // Segunda etapa: digitar o código que chegou no email
@@ -159,6 +170,8 @@ function CodeStep({ email, resend, onBack, onDone }: CodeStepProps) {
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [wait, setWait] = useState(RESEND_SECONDS);
+  // Desmarcado por padrão: o site é muito usado em computadores da escola (compartilhados)
+  const [remember, setRemember] = useState(false);
 
   // Contagem regressiva para liberar o "Reenviar código"
   useEffect(() => {
@@ -175,7 +188,7 @@ function CodeStep({ email, resend, onBack, onDone }: CodeStepProps) {
 
     setLoading(true);
     try {
-      onDone(await authService.verifyLogin(email, code));
+      onDone(await authService.verifyLogin(email, code, remember));
     } catch (err) {
       setError(getErrorMessage(err));
       setLoading(false);
@@ -234,6 +247,14 @@ function CodeStep({ email, resend, onBack, onDone }: CodeStepProps) {
             autoFocus
           />
         </div>
+
+        <label className={styles.remember}>
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <span>
+            Lembrar este aparelho por 30 dias
+            <small>Nos próximos logins, só email e senha. Não marque em computador compartilhado.</small>
+          </span>
+        </label>
 
         <Button type="submit" loading={loading}>
           Entrar
