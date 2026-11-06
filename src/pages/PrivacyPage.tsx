@@ -143,8 +143,8 @@ export function PrivacyPage() {
             <strong>Aiven</strong>: banco de dados onde ficam as contas.
           </li>
           <li>
-            <strong>Brevo</strong>: envio dos emails de confirmação e de redefinição de senha (recebe o seu nome e
-            email para entregar a mensagem).
+            <strong>Google (Gmail)</strong>: envio dos emails de confirmação, dos códigos de acesso e de redefinição
+            de senha, pela conta de email do projeto (recebe o seu nome e email para entregar a mensagem).
           </li>
           <li>
             <strong>Google Fonts</strong>: fornece as fontes do site. Ao carregar a página, o seu navegador se
