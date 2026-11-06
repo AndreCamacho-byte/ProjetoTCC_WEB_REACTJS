@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -17,10 +17,22 @@ export function SiteLayout() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--brand-offwhite)" }}>
       <SiteHeader />
       <main style={{ flex: 1 }}>
-        <Outlet />
+        {/* As áreas grandes do site são baixadas na primeira visita (App.tsx): enquanto isso,
+            cabeçalho e rodapé continuam na tela e só o meio mostra o aviso */}
+        <Suspense fallback={<PageLoading />}>
+          <Outlet />
+        </Suspense>
       </main>
       <SiteFooter />
       <UsernameGate />
     </div>
+  );
+}
+
+function PageLoading() {
+  return (
+    <p role="status" style={{ padding: "64px 24px", textAlign: "center", color: "var(--color-text-muted)" }}>
+      Carregando...
+    </p>
   );
 }
