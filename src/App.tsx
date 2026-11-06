@@ -1,40 +1,49 @@
-import type { ReactNode } from "react";
+import { lazy, type ComponentType, type ReactNode } from "react";
 import { Route, Routes } from "react-router-dom";
 import { AgeGate } from "./components/AgeGate";
 import { AdminRoute, PrivateRoute, PublicOnlyRoute } from "./components/RouteGuards";
 import { NAV_LINKS } from "./components/SiteHeader";
 import { SiteLayout } from "./layouts/SiteLayout";
-import { AccountSettingsPage } from "./pages/AccountSettingsPage";
-import { AdminOrdersPage } from "./pages/AdminOrdersPage";
-import { AdminProductsPage } from "./pages/AdminProductsPage";
-import { AdminSpotsPage } from "./pages/AdminSpotsPage";
-import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { CheckEmailPage } from "./pages/CheckEmailPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { ConfirmEmailPage } from "./pages/ConfirmEmailPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { HomePage } from "./pages/HomePage";
-import { ChatPage } from "./pages/chat/ChatPage";
-import { CommunityPage } from "./pages/community/CommunityPage";
-import { PostPage } from "./pages/community/PostPage";
-import { ProfilePage } from "./pages/community/ProfilePage";
-import { SavedPage } from "./pages/community/SavedPage";
 import { LoginPage } from "./pages/LoginPage";
-import { CartPage } from "./pages/market/CartPage";
-import { CheckoutPage } from "./pages/market/CheckoutPage";
-import { MarketPage } from "./pages/market/MarketPage";
-import { OrderPage, OrdersPage } from "./pages/market/OrdersPage";
-import { ProductPage } from "./pages/market/ProductPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PrivacyPage } from "./pages/PrivacyPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
-import { EventsPage } from "./pages/spots/EventsPage";
-import { ExplorePage } from "./pages/spots/ExplorePage";
-import { MeetupPage } from "./pages/spots/MeetupPage";
-import { NewSpotPage } from "./pages/spots/NewSpotPage";
-import { SpotPage } from "./pages/spots/SpotPage";
-import { TermsPage } from "./pages/TermsPage";
+
+// As áreas grandes (mapa, loja, comunidade, chat, painel) são baixadas só quando a pessoa abre:
+// a primeira tela carrega bem mais rápido, principalmente no 4G. A página inicial e as telas de
+// login ficam no pacote principal, porque são as primeiras que todo mundo vê.
+// (o SiteLayout mostra um aviso de "carregando" enquanto a área chega)
+const page = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
+  lazy(() => load().then((module) => ({ default: module[name] })));
+
+const AccountSettingsPage = page(() => import("./pages/AccountSettingsPage"), "AccountSettingsPage");
+const AdminOrdersPage = page(() => import("./pages/AdminOrdersPage"), "AdminOrdersPage");
+const AdminProductsPage = page(() => import("./pages/AdminProductsPage"), "AdminProductsPage");
+const AdminSpotsPage = page(() => import("./pages/AdminSpotsPage"), "AdminSpotsPage");
+const AdminUsersPage = page(() => import("./pages/AdminUsersPage"), "AdminUsersPage");
+const ChatPage = page(() => import("./pages/chat/ChatPage"), "ChatPage");
+const CommunityPage = page(() => import("./pages/community/CommunityPage"), "CommunityPage");
+const PostPage = page(() => import("./pages/community/PostPage"), "PostPage");
+const ProfilePage = page(() => import("./pages/community/ProfilePage"), "ProfilePage");
+const SavedPage = page(() => import("./pages/community/SavedPage"), "SavedPage");
+const CartPage = page(() => import("./pages/market/CartPage"), "CartPage");
+const CheckoutPage = page(() => import("./pages/market/CheckoutPage"), "CheckoutPage");
+const MarketPage = page(() => import("./pages/market/MarketPage"), "MarketPage");
+const OrderPage = page(() => import("./pages/market/OrdersPage"), "OrderPage");
+const OrdersPage = page(() => import("./pages/market/OrdersPage"), "OrdersPage");
+const ProductPage = page(() => import("./pages/market/ProductPage"), "ProductPage");
+const PrivacyPage = page(() => import("./pages/PrivacyPage"), "PrivacyPage");
+const EventsPage = page(() => import("./pages/spots/EventsPage"), "EventsPage");
+const ExplorePage = page(() => import("./pages/spots/ExplorePage"), "ExplorePage");
+const MeetupPage = page(() => import("./pages/spots/MeetupPage"), "MeetupPage");
+const NewSpotPage = page(() => import("./pages/spots/NewSpotPage"), "NewSpotPage");
+const SpotPage = page(() => import("./pages/spots/SpotPage"), "SpotPage");
+const TermsPage = page(() => import("./pages/TermsPage"), "TermsPage");
 
 // Áreas com idade mínima de 12 anos: spots (Explorar), encontros (Eventos) e marketplace
 const AGE_RESTRICTED = ["/explorar", "/eventos", "/market"];
