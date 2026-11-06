@@ -184,7 +184,10 @@ export function PrivacyPage() {
         <h2>6. Onde os dados ficam no seu aparelho</h2>
         <p>
           Para manter você conectado, o site guarda no seu navegador um código de sessão (armazenamento local), que
-          vale por 7 dias e é apagado quando você clica em “Sair”. Não usamos cookies de terceiros.
+          vale por 7 dias e é apagado quando você clica em “Sair”. Se você marcar “Lembrar este aparelho” ao entrar, o
+          navegador também guarda uma chave que dispensa o código por email nos próximos 30 dias; no servidor fica só uma
+          versão embaralhada dela, que é apagada quando você troca a senha ou clica em “Esquecer todos os aparelhos” em{" "}
+          <Link to="/conta">Configurações</Link>. Não usamos cookies de terceiros.
         </p>
       </section>
 

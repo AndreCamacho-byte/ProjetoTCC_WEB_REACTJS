@@ -186,8 +186,37 @@ describe("Login", () => {
 
     await waitFor(() => expect(currentPath()).toBe("/"));
     expect(service.login).toHaveBeenCalledWith({ email: "tony@clutch.test", password: "skate1234" });
-    expect(service.verifyLogin).toHaveBeenCalledWith("tony@clutch.test", "123456");
+    expect(service.verifyLogin).toHaveBeenCalledWith("tony@clutch.test", "123456", false);
     expect(signIn).toHaveBeenCalledWith(response);
+  });
+
+  it("lembrar o aparelho guarda a chave e o próximo login entra sem código", async () => {
+    localStorage.clear();
+    service.login.mockResolvedValue(challenge);
+    service.verifyLogin.mockResolvedValue({ user: makeUser(), token: "tok", deviceToken: "chave-1" });
+    const { unmount } = renderAt(<LoginPage />, { path: "/login" });
+    await fill();
+    await submit();
+
+    // Desmarcado por padrão (computadores compartilhados)
+    const remember = await screen.findByRole("checkbox", { name: /Lembrar este aparelho/ });
+    expect(remember).not.toBeChecked();
+    await userEvent.click(remember);
+    await userEvent.type(field("Código de acesso"), "123456");
+    await submit();
+    await waitFor(() => expect(service.verifyLogin).toHaveBeenCalledWith("tony@clutch.test", "123456", true));
+    unmount();
+
+    // Segundo login: a chave vai junto e o servidor já devolve o token
+    service.login.mockReset().mockResolvedValue({ user: makeUser(), token: "tok2" });
+    renderAt(<LoginPage />, { path: "/login" });
+    await fill("TONY@clutch.test");
+    await submit();
+
+    await waitFor(() => expect(currentPath()).toBe("/"));
+    expect(service.login).toHaveBeenCalledWith({ email: "TONY@clutch.test", password: "skate1234", deviceToken: "chave-1" });
+    expect(screen.queryByLabelText("Código de acesso")).not.toBeInTheDocument();
+    localStorage.clear();
   });
 
   it("depois do código, volta para a página protegida que a pessoa tentou abrir", async () => {

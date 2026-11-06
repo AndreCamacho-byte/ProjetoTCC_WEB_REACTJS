@@ -5,6 +5,7 @@ import { Lightbox } from "@/components/Lightbox";
 import { useAuth } from "@/hooks/useAuth";
 import { accountService } from "@/services/account";
 import { ApiError } from "@/services/api";
+import { deviceTokens } from "@/services/deviceTokens";
 import { moderationService } from "@/services/moderation";
 import type { Author } from "@/types/community";
 import type { SkateLevel, User } from "@/types/user";
@@ -48,6 +49,7 @@ export function AccountSettingsPage() {
       <AvatarSection user={user} />
       <ProfileSection user={user} />
       <PasswordSection />
+      <DevicesSection email={user.email} />
       <AgeSection user={user} />
       <BlockedSection />
       <DangerSection />
@@ -369,6 +371,46 @@ function AgeSection({ user }: { user: User }) {
           {saving ? "Salvando..." : "Salvar data de nascimento"}
         </button>
       </form>
+    </section>
+  );
+}
+
+// Aparelhos lembrados no login ("Lembrar este aparelho por 30 dias")
+function DevicesSection({ email }: { email: string }) {
+  const [feedback, setFeedback] = useState<Feedback>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function forget() {
+    if (!window.confirm("Esquecer todos os aparelhos? O próximo login em qualquer um deles vai pedir o código por email.")) return;
+    setBusy(true);
+    setFeedback(null);
+    try {
+      const { forgotten } = await accountService.forgetDevices();
+      deviceTokens.remove(email);
+      setFeedback({
+        type: "ok",
+        text: forgotten === 0 ? "Nenhum aparelho estava lembrado." : `Pronto: ${forgotten === 1 ? "1 aparelho esquecido" : `${forgotten} aparelhos esquecidos`}.`,
+      });
+    } catch (err) {
+      setFeedback({ type: "error", text: errorText(err) });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className={styles.card}>
+      <h2>Aparelhos lembrados</h2>
+      <p className={styles.hint}>
+        Nos aparelhos em que você marcou “Lembrar este aparelho”, o login pede só email e senha por 30 dias. Trocar a
+        senha também esquece todos eles.
+      </p>
+      <Message feedback={feedback} />
+      <div>
+        <button type="button" className={styles.secondary} disabled={busy} onClick={forget}>
+          Esquecer todos os aparelhos
+        </button>
+      </div>
     </section>
   );
 }
