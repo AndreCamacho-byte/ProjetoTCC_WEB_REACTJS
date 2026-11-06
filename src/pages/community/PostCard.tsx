@@ -7,12 +7,14 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CommentIcon,
+  FlagIcon,
   HeartIcon,
   LinkIcon,
   ShareIcon,
   TrashIcon,
 } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
+import { ReportDialog } from "@/components/ReportDialog";
 import { chatService } from "@/services/chat";
 import { FriendsDialog } from "../chat/FriendsDialog";
 import { communityService } from "@/services/community";
@@ -53,6 +55,7 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   async function toggleLike() {
     // Muda na tela na hora e confirma com o servidor; se der erro, volta como estava
@@ -148,7 +151,27 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
             Apagar
           </button>
         )}
+        {!post.isMine && (
+          <button
+            type="button"
+            className={`${styles.iconButton} ${post.canDelete ? "" : styles.deleteButton}`}
+            aria-label="Denunciar post"
+            title="Denunciar"
+            onClick={() => setReporting(true)}
+          >
+            <FlagIcon size={18} />
+          </button>
+        )}
       </div>
+
+      {reporting && (
+        <ReportDialog
+          targetType="POST"
+          targetId={post.id}
+          description={`o post de @${post.author.username}`}
+          onClose={() => setReporting(false)}
+        />
+      )}
 
       {showComments && (
         <Comments
@@ -318,6 +341,7 @@ function Comments({ postId, onCountChange }: CommentsProps) {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
+  const [reported, setReported] = useState<Comment | null>(null);
 
   async function load(cursor?: string) {
     try {
@@ -391,8 +415,28 @@ function Comments({ postId, onCountChange }: CommentsProps) {
               <TrashIcon size={16} />
             </button>
           )}
+          {!comment.isMine && (
+            <button
+              type="button"
+              className={styles.iconButton}
+              aria-label={`Denunciar comentário de ${comment.author.name}`}
+              title="Denunciar"
+              onClick={() => setReported(comment)}
+            >
+              <FlagIcon size={16} />
+            </button>
+          )}
         </div>
       ))}
+
+      {reported && (
+        <ReportDialog
+          targetType="COMMENT"
+          targetId={reported.id}
+          description={`o comentário de @${reported.author.username}`}
+          onClose={() => setReported(null)}
+        />
+      )}
 
       {nextCursor && (
         <button type="button" className={styles.linkButton} onClick={() => load(nextCursor)}>

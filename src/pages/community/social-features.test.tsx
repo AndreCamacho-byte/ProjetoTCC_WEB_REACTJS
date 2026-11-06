@@ -59,6 +59,7 @@ function makePost(overrides: Partial<Post> = {}): Post {
     likedByMe: false,
     savedByMe: false,
     canDelete: false,
+    isMine: false,
     ...overrides,
   };
 }
@@ -228,6 +229,7 @@ describe("perfil como no Instagram", () => {
     followedByMe: false,
     followsMe: true,
     isMe: false,
+    blockedByMe: false,
   };
   const open = () => renderAt(<ProfilePage />, { path: "/u/:username", route: "/u/leticia" });
 

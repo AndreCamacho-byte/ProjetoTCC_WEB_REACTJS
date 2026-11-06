@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { Lightbox } from "@/components/Lightbox";
 import { useAuth } from "@/hooks/useAuth";
 import { accountService } from "@/services/account";
 import { ApiError } from "@/services/api";
+import { moderationService } from "@/services/moderation";
+import type { Author } from "@/types/community";
 import type { SkateLevel, User } from "@/types/user";
 import { SKATE_LEVEL_LABEL } from "@/utils/format";
 import { MIN_AGE, ageFrom, ageStatus, formatBirthDate } from "@/utils/age";
@@ -46,6 +49,7 @@ export function AccountSettingsPage() {
       <ProfileSection user={user} />
       <PasswordSection />
       <AgeSection user={user} />
+      <BlockedSection />
       <DangerSection />
     </div>
   );
@@ -365,6 +369,51 @@ function AgeSection({ user }: { user: User }) {
           {saving ? "Salvando..." : "Salvar data de nascimento"}
         </button>
       </form>
+    </section>
+  );
+}
+
+// Pessoas bloqueadas, com o botão de desbloquear
+function BlockedSection() {
+  const [people, setPeople] = useState<Author[] | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    moderationService.listBlocked().then(setPeople, (err) => setError(errorText(err)));
+  }, []);
+
+  async function unblock(person: Author) {
+    setError("");
+    try {
+      await moderationService.unblock(person.username);
+      setPeople((current) => current && current.filter((p) => p.id !== person.id));
+    } catch (err) {
+      setError(errorText(err));
+    }
+  }
+
+  return (
+    <section className={styles.card}>
+      <h2>Pessoas bloqueadas</h2>
+      {people?.length === 0 && (
+        <p className={styles.hint}>Você não bloqueou ninguém. Para bloquear, abra o perfil da pessoa na Comunidade.</p>
+      )}
+      {people && people.length > 0 && (
+        <ul className={styles.blockedList}>
+          {people.map((person) => (
+            <li key={person.id}>
+              <Avatar user={person} size={36} />
+              <Link to={`/u/${person.username}`}>
+                {person.name} <span className={styles.hint}>@{person.username}</span>
+              </Link>
+              <button type="button" className={styles.secondary} onClick={() => unblock(person)}>
+                Desbloquear
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {error && <Message feedback={{ type: "error", text: error }} />}
     </section>
   );
 }

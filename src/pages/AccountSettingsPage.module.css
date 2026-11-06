@@ -281,6 +281,31 @@
 
 /* ---------- Excluir conta ---------- */
 
+.blockedList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.blockedList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.blockedList a {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dangerCard {
   border: 1.5px solid #f0c9c6;
 }

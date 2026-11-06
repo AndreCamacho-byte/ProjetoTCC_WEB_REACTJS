@@ -210,6 +210,16 @@
   text-align: right;
 }
 
+.reportMessage {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Post compartilhado dentro da mensagem */
 .sharedPost {
   display: flex;

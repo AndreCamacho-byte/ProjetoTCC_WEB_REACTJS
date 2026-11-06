@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
-import { ChevronLeftIcon, CloseIcon } from "@/components/icons";
+import { ChevronLeftIcon, CloseIcon, FlagIcon } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
+import { ReportDialog } from "@/components/ReportDialog";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { ApiError } from "@/services/api";
 import { chatService } from "@/services/chat";
 import { communityService } from "@/services/community";
+import { moderationService } from "@/services/moderation";
 import type { FollowPerson, Profile } from "@/types/community";
 import { SKATE_LEVEL_LABEL } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
@@ -31,6 +33,7 @@ export function ProfilePage() {
   const [busy, setBusy] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [list, setList] = useState<ListKind | null>(null);
+  const [reporting, setReporting] = useState(false);
 
   usePageTitle(profile ? `${profile.name} (@${profile.username})` : "Perfil");
 
@@ -65,6 +68,32 @@ export function ProfilePage() {
         ? await communityService.unfollow(profile.username)
         : await communityService.follow(profile.username);
       setProfile({ ...profile, ...state });
+    } catch (err) {
+      setError(apiMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Bloquear desfaz o seguir dos dois lados; desbloquear não volta a seguir
+  async function toggleBlock() {
+    if (!profile) return;
+    if (
+      !profile.blockedByMe &&
+      !window.confirm(
+        `Bloquear @${profile.username}? Vocês deixam de se seguir, não conversam mais e não veem os posts e comentários um do outro. A pessoa não é avisada.`,
+      )
+    )
+      return;
+    setBusy(true);
+    setError("");
+    try {
+      const state = profile.blockedByMe
+        ? await moderationService.unblock(profile.username)
+        : await moderationService.block(profile.username);
+      setProfile({ ...profile, ...state });
+      // Os contadores de seguidores mudam ao bloquear: busca o perfil de novo
+      loadProfile();
     } catch (err) {
       setError(apiMessage(err));
     } finally {
@@ -155,7 +184,7 @@ export function ProfilePage() {
                         Salvos
                       </Link>
                     </>
-                  ) : (
+                  ) : profile.blockedByMe ? null : (
                     <button
                       type="button"
                       className={profile.followedByMe ? styles.secondary : styles.primary}
@@ -172,13 +201,44 @@ export function ProfilePage() {
                       Mensagem
                     </button>
                   )}
+                  {!profile.isMe && (
+                    <>
+                      <button type="button" className={styles.secondary} disabled={busy} onClick={toggleBlock}>
+                        {profile.blockedByMe ? "Desbloquear" : "Bloquear"}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.secondary}
+                        aria-label="Denunciar perfil"
+                        title="Denunciar perfil"
+                        onClick={() => setReporting(true)}
+                      >
+                        <FlagIcon size={16} />
+                      </button>
+                    </>
+                  )}
                 </div>
               </section>
 
-              <PostList
-                load={load}
-                emptyText={profile.isMe ? "Você ainda não postou nada. Conte como foi sua última sessão!" : "Nenhum post ainda."}
-              />
+              {profile.blockedByMe ? (
+                <p className={styles.empty}>
+                  Você bloqueou esta pessoa. Vocês não veem os posts e comentários um do outro e não conversam pelo chat.
+                </p>
+              ) : (
+                <PostList
+                  load={load}
+                  emptyText={profile.isMe ? "Você ainda não postou nada. Conte como foi sua última sessão!" : "Nenhum post ainda."}
+                />
+              )}
+
+              {reporting && (
+                <ReportDialog
+                  targetType="USER"
+                  targetId={profile.id}
+                  description={`o perfil de @${profile.username}`}
+                  onClose={() => setReporting(false)}
+                />
+              )}
 
               {photoOpen && profile.avatarUrl && (
                 <Lightbox images={[profile.avatarUrl]} alt={`Foto de ${profile.name}`} round onClose={() => setPhotoOpen(false)} />
