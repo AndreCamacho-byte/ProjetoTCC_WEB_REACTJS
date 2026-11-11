@@ -52,6 +52,12 @@ export function timeAgo(iso: string, now = new Date()) {
   return formatDate(iso);
 }
 
+// Marca de post editado: "editado agora", "editado há 5 min" ou "editado em 10/10/2026"
+export function editedLabel(iso: string, now = new Date()) {
+  const when = timeAgo(iso, now);
+  return when === "agora" || when.startsWith("há") ? `editado ${when}` : `editado em ${when}`;
+}
+
 export const SKATE_LEVEL_LABEL: Record<SkateLevel, string> = {
   INICIANTE: "Iniciante",
   INTERMEDIARIO: "Intermediário",

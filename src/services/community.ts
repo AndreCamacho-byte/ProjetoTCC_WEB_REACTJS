@@ -25,6 +25,7 @@ export const communityService = {
   getFeed: (feed: Feed, cursor?: string) => api<PostPage>(`/posts?${page(cursor, { feed })}`),
   // `images`: até 4 fotos já reduzidas, em JPEG (data URL em base64)
   createPost: (content: string, images: string[] = []) => api<Post>("/posts", { method: "POST", body: { content, images } }),
+  updatePost: (id: string, content: string) => api<Post>(`/posts/${id}`, { method: "PATCH", body: { content } }),
   deletePost: (id: string) => api<null>(`/posts/${id}`, { method: "DELETE" }),
 
   like: (id: string) => api<LikeState>(`/posts/${id}/like`, { method: "PUT" }),

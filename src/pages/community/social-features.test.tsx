@@ -58,6 +58,8 @@ function makePost(overrides: Partial<Post> = {}): Post {
     commentCount: 0,
     likedByMe: false,
     savedByMe: false,
+    editedAt: null,
+    canEdit: false,
     canDelete: false,
     isMine: false,
     ...overrides,

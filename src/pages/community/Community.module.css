@@ -816,3 +816,24 @@
   padding: 0 14px;
   font-size: 0.8125rem;
 }
+
+/* ---------- Editar post ---------- */
+
+.editPost textarea {
+  width: 100%;
+  min-height: 96px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-input-bg-focus);
+  font: inherit;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  resize: vertical;
+  outline: none;
+}
+
+.edited {
+  font-style: italic;
+}

@@ -8,6 +8,7 @@ vi.mock("@/services/community", () => ({
     getFeed: vi.fn(),
     createPost: vi.fn(),
     deletePost: vi.fn(),
+    updatePost: vi.fn(),
     like: vi.fn(),
     unlike: vi.fn(),
     save: vi.fn(),
@@ -36,15 +37,28 @@ import type { User } from "@/types/user";
 import { timeAgo } from "@/utils/format";
 import { TermsPage } from "../TermsPage";
 import { CommunityPage } from "./CommunityPage";
+import { PostCard } from "./PostCard";
 import { ProfilePage } from "./ProfilePage";
 
 const service = vi.mocked(communityService);
 
 function loginAs(user: User | null) {
-  vi.mocked(useAuth).mockReturnValue({ user, loading: false, signIn: vi.fn(), signOut: vi.fn(), updateUser: vi.fn() });
+  vi.mocked(useAuth).mockReturnValue({
+    user,
+    loading: false,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+    updateUser: vi.fn(),
+  });
 }
 
-const otherAuthor = { id: "22222222-2222-4222-8222-222222222222", name: "Leticia Teste", username: "leticia", avatarUrl: null, skateLevel: "AVANCADO" as const };
+const otherAuthor = {
+  id: "22222222-2222-4222-8222-222222222222",
+  name: "Leticia Teste",
+  username: "leticia",
+  avatarUrl: null,
+  skateLevel: "AVANCADO" as const,
+};
 
 function makePost(overrides: Partial<Post> = {}): Post {
   return {
@@ -57,6 +71,8 @@ function makePost(overrides: Partial<Post> = {}): Post {
     commentCount: 1,
     likedByMe: false,
     savedByMe: false,
+    editedAt: null,
+    canEdit: false,
     canDelete: false,
     isMine: false,
     ...overrides,
@@ -75,7 +91,10 @@ function makeComment(overrides: Partial<Comment> = {}): Comment {
   };
 }
 
-const page = (posts: Post[], nextCursor: string | null = null) => ({ posts, nextCursor });
+const page = (posts: Post[], nextCursor: string | null = null) => ({
+  posts,
+  nextCursor,
+});
 
 beforeEach(() => {
   loginAs(makeUser());
@@ -133,7 +152,9 @@ describe("Comunidade", () => {
   });
 
   it("carrega mais posts pelo cursor", async () => {
-    service.getFeed.mockResolvedValueOnce(page([makePost()], "post-1")).mockResolvedValueOnce(page([makePost({ id: "post-2", content: "Segundo post" })]));
+    service.getFeed
+      .mockResolvedValueOnce(page([makePost()], "post-1"))
+      .mockResolvedValueOnce(page([makePost({ id: "post-2", content: "Segundo post" })]));
     renderAt(<CommunityPage />, { path: "/comunidade" });
 
     await userEvent.click(await screen.findByRole("button", { name: "Carregar mais" }));
@@ -145,7 +166,13 @@ describe("Comunidade", () => {
 
   it("publica um post e ele aparece no topo", async () => {
     service.getFeed.mockResolvedValue(page([makePost()]));
-    service.createPost.mockResolvedValue(makePost({ id: "post-novo", content: "Meu primeiro post", canDelete: true }));
+    service.createPost.mockResolvedValue(
+      makePost({
+        id: "post-novo",
+        content: "Meu primeiro post",
+        canDelete: true,
+      }),
+    );
     renderAt(<CommunityPage />, { path: "/comunidade" });
 
     const postButton = await screen.findByRole("button", { name: "Postar" });
@@ -185,8 +212,17 @@ describe("Comunidade", () => {
 
   it("abre os comentários e comenta", async () => {
     service.getFeed.mockResolvedValue(page([makePost()]));
-    service.getComments.mockResolvedValue({ comments: [makeComment()], nextCursor: null });
-    service.createComment.mockResolvedValue(makeComment({ id: "comment-2", content: "Brabo demais", canDelete: true }));
+    service.getComments.mockResolvedValue({
+      comments: [makeComment()],
+      nextCursor: null,
+    });
+    service.createComment.mockResolvedValue(
+      makeComment({
+        id: "comment-2",
+        content: "Brabo demais",
+        canDelete: true,
+      }),
+    );
     renderAt(<CommunityPage />, { path: "/comunidade" });
 
     await userEvent.click(await screen.findByRole("button", { name: "Comentários" }));
@@ -303,5 +339,66 @@ describe("Termos de Uso", () => {
     expect(screen.getByRole("heading", { name: "3. Regras da comunidade" })).toBeInTheDocument();
     expect(screen.getByText(/as compras são simuladas/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Política de Privacidade" })).toHaveAttribute("href", "/privacidade");
+  });
+});
+
+describe("Editar post", () => {
+  const mine = () =>
+    makePost({
+      isMine: true,
+      canEdit: true,
+      canDelete: true,
+      author: { ...otherAuthor, username: "tony" },
+    });
+
+  beforeEach(() => loginAs(makeUser()));
+
+  it("o autor edita o texto e o post mostra que foi editado", async () => {
+    const editedAt = new Date(Date.now() - 5 * 60_000).toISOString();
+    service.updatePost.mockResolvedValue({
+      ...mine(),
+      content: "Sessão de ontem na praça",
+      editedAt,
+    });
+    renderAt(<PostCard post={mine()} onDeleted={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar post" }));
+    const box = screen.getByRole("textbox", { name: "Texto do post" });
+    await userEvent.clear(box);
+    await userEvent.type(box, "Sessão de ontem na praça");
+    await userEvent.click(screen.getByRole("button", { name: "Salvar alterações" }));
+
+    expect(service.updatePost).toHaveBeenCalledWith("post-1", "Sessão de ontem na praça");
+    expect(await screen.findByText("Sessão de ontem na praça")).toBeInTheDocument();
+    expect(screen.getByText("editado há 5 min")).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Texto do post" })).not.toBeInTheDocument();
+  });
+
+  it("cancelar volta ao texto de antes sem chamar o servidor", async () => {
+    renderAt(<PostCard post={mine()} onDeleted={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar post" }));
+    await userEvent.type(screen.getByRole("textbox", { name: "Texto do post" }), " mudou");
+    await userEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(screen.getByText("Sessão de hoje na praça")).toBeInTheDocument();
+    expect(service.updatePost).not.toHaveBeenCalled();
+  });
+
+  it("post sem foto não pode ficar vazio", async () => {
+    renderAt(<PostCard post={mine()} onDeleted={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Editar post" }));
+    await userEvent.clear(screen.getByRole("textbox", { name: "Texto do post" }));
+
+    expect(screen.getByRole("button", { name: "Salvar alterações" })).toBeDisabled();
+    expect(screen.getByText("Escreva alguma coisa")).toBeInTheDocument();
+  });
+
+  it("post de outra pessoa não tem o botão de editar; post antigo editado mostra a data", () => {
+    renderAt(<PostCard post={makePost({ editedAt: "2026-09-01T12:00:00.000Z" })} onDeleted={vi.fn()} />);
+
+    expect(screen.queryByRole("button", { name: "Editar post" })).not.toBeInTheDocument();
+    expect(screen.getByText(/^editado em /)).toBeInTheDocument();
   });
 });

@@ -15,11 +15,15 @@ export type Post = {
   // Até 4 fotos, na ordem escolhida
   imageUrls: string[];
   createdAt: string;
+  // Última edição do texto (null se nunca foi editado)
+  editedAt: string | null;
   author: Author;
   likeCount: number;
   commentCount: number;
   likedByMe: boolean;
   savedByMe: boolean;
+  // Só quem escreveu edita o texto
+  canEdit: boolean;
   // Verdadeiro para quem escreveu e para administradores
   canDelete: boolean;
   // É de quem está vendo (não aparece o botão de denunciar)

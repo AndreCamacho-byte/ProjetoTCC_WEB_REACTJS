@@ -127,6 +127,12 @@ export const TrashIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const PencilIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4" />
+  </Icon>
+);
+
 export const BookmarkIcon = ({ filled = false, ...p }: IconProps & { filled?: boolean }) => (
   <Icon {...p} fill={filled ? "currentColor" : "none"}>
     <path d="M6 3h12v18l-6-4.5L6 21z" />

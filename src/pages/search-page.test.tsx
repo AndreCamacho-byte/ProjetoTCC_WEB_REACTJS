@@ -36,7 +36,7 @@ const product: Product = {
 } as Product;
 
 const spot = (id: string, name: string, address: string | null = null): SpotPin =>
-  ({ id, name, type: "PRACA", address, latitude: 0, longitude: 0, coverUrl: null, upcomingMeetups: 0 }) as SpotPin;
+  ({ id, name, type: "STREET", address, latitude: 0, longitude: 0, coverUrl: null, upcomingMeetups: 0 }) as SpotPin;
 
 const auth = (user: ReturnType<typeof makeUser> | null) =>
   vi.mocked(useAuth).mockReturnValue({ user, loading: false, signIn: vi.fn(), signOut: vi.fn(), updateUser: vi.fn() });

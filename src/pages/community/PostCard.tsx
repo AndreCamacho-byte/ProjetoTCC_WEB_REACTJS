@@ -11,6 +11,7 @@ import {
   HeartIcon,
   LinkIcon,
   ShareIcon,
+  PencilIcon,
   TrashIcon,
 } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
@@ -19,7 +20,7 @@ import { chatService } from "@/services/chat";
 import { FriendsDialog } from "../chat/FriendsDialog";
 import { communityService } from "@/services/community";
 import type { Author, Comment, Post } from "@/types/community";
-import { SKATE_LEVEL_LABEL, timeAgo } from "@/utils/format";
+import { SKATE_LEVEL_LABEL, editedLabel, formatDate, timeAgo } from "@/utils/format";
 import { apiMessage } from "@/utils/validation";
 import styles from "./Community.module.css";
 
@@ -29,7 +30,7 @@ export const MAX_COMMENT_LENGTH = 300;
 export const postLink = (id: string) => `${window.location.origin}/comunidade/post/${id}`;
 
 // Nome com link para o perfil, @ e nível de skate
-export function AuthorLine({ author, time }: { author: Author; time: string }) {
+export function AuthorLine({ author, time, editedAt }: { author: Author; time: string; editedAt?: string | null }) {
   return (
     <div className={styles.who}>
       <Link to={`/u/${author.username}`} className={styles.name}>
@@ -38,6 +39,14 @@ export function AuthorLine({ author, time }: { author: Author; time: string }) {
       {author.skateLevel && <span className={styles.level}>{SKATE_LEVEL_LABEL[author.skateLevel]}</span>}
       <span className={styles.meta}>
         @{author.username} · <time dateTime={time}>{timeAgo(time)}</time>
+        {editedAt && (
+          <>
+            {" · "}
+            <time dateTime={editedAt} title={`Editado em ${formatDate(editedAt)}`} className={styles.edited}>
+              {editedLabel(editedAt)}
+            </time>
+          </>
+        )}
       </span>
     </div>
   );
@@ -56,11 +65,16 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   async function toggleLike() {
     // Muda na tela na hora e confirma com o servidor; se der erro, volta como estava
     const before = post;
-    setPost({ ...post, likedByMe: !post.likedByMe, likeCount: post.likeCount + (post.likedByMe ? -1 : 1) });
+    setPost({
+      ...post,
+      likedByMe: !post.likedByMe,
+      likeCount: post.likeCount + (post.likedByMe ? -1 : 1),
+    });
     try {
       const state = before.likedByMe ? await communityService.unlike(post.id) : await communityService.like(post.id);
       setPost((current) => ({ ...current, ...state }));
@@ -101,10 +115,21 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
         <Link to={`/u/${post.author.username}`} aria-label={`Perfil de ${post.author.name}`}>
           <Avatar user={post.author} size={44} />
         </Link>
-        <AuthorLine author={post.author} time={post.createdAt} />
+        <AuthorLine author={post.author} time={post.createdAt} editedAt={post.editedAt} />
       </header>
 
-      {post.content && <p className={styles.content}>{post.content}</p>}
+      {editing ? (
+        <EditPostForm
+          post={post}
+          onCancel={() => setEditing(false)}
+          onSaved={(updated) => {
+            setPost(updated);
+            setEditing(false);
+          }}
+        />
+      ) : (
+        post.content && <p className={styles.content}>{post.content}</p>
+      )}
       {post.imageUrls.length > 0 && <PostPhotos urls={post.imageUrls} authorName={post.author.name} />}
 
       {error && (
@@ -145,8 +170,24 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
         >
           <BookmarkIcon size={20} filled={post.savedByMe} />
         </button>
+        {post.canEdit && !editing && (
+          <button
+            type="button"
+            className={`${styles.iconButton} ${styles.deleteButton}`}
+            aria-label="Editar post"
+            title="Editar"
+            onClick={() => setEditing(true)}
+          >
+            <PencilIcon size={18} />
+          </button>
+        )}
         {post.canDelete && (
-          <button type="button" className={`${styles.iconButton} ${styles.deleteButton}`} disabled={busy} onClick={remove}>
+          <button
+            type="button"
+            className={`${styles.iconButton} ${post.canEdit ? "" : styles.deleteButton}`}
+            disabled={busy}
+            onClick={remove}
+          >
             <TrashIcon size={18} />
             Apagar
           </button>
@@ -176,10 +217,78 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
       {showComments && (
         <Comments
           postId={post.id}
-          onCountChange={(delta) => setPost((current) => ({ ...current, commentCount: current.commentCount + delta }))}
+          onCountChange={(delta) =>
+            setPost((current) => ({
+              ...current,
+              commentCount: current.commentCount + delta,
+            }))
+          }
         />
       )}
     </article>
+  );
+}
+
+const MAX_POST_LENGTH = 500;
+
+// Editar o texto do post (as fotos continuam as mesmas). Post sem foto não pode ficar vazio.
+function EditPostForm({
+  post,
+  onCancel,
+  onSaved,
+}: {
+  post: Post;
+  onCancel: () => void;
+  onSaved: (post: Post) => void;
+}) {
+  const [text, setText] = useState(post.content);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const remaining = MAX_POST_LENGTH - text.length;
+  const empty = !text.trim() && post.imageUrls.length === 0;
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (text.trim() === post.content) return onCancel();
+    setSaving(true);
+    setError("");
+    try {
+      onSaved(await communityService.updatePost(post.id, text.trim()));
+    } catch (err) {
+      setError(apiMessage(err));
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form className={styles.editPost} onSubmit={handleSubmit}>
+      <textarea
+        aria-label="Texto do post"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        maxLength={MAX_POST_LENGTH + 50}
+        autoFocus
+        onKeyDown={(e) => e.key === "Escape" && onCancel()}
+      />
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
+      <div className={styles.composerBar}>
+        <span className={`${styles.counter} ${remaining < 0 ? styles.counterOver : ""}`} aria-live="polite">
+          {empty ? "Escreva alguma coisa" : remaining}
+        </span>
+        <div className={styles.composerTools}>
+          <button type="button" className={styles.secondary} onClick={onCancel} disabled={saving}>
+            Cancelar
+          </button>
+          <button type="submit" className={styles.primary} disabled={saving || remaining < 0 || empty}>
+            {saving ? "Salvando..." : "Salvar alterações"}
+          </button>
+        </div>
+      </div>
+    </form>
   );
 }
 
@@ -188,7 +297,9 @@ function PostPhotos({ urls, authorName }: { urls: string[]; authorName: string }
   const [index, setIndex] = useState(0);
   const [open, setOpen] = useState(false);
   const many = urls.length > 1;
-  const alt = many ? `Foto ${index + 1} de ${urls.length}, postada por ${authorName}` : `Foto postada por ${authorName}`;
+  const alt = many
+    ? `Foto ${index + 1} de ${urls.length}, postada por ${authorName}`
+    : `Foto postada por ${authorName}`;
 
   return (
     <div className={styles.photos}>
@@ -226,7 +337,9 @@ function PostPhotos({ urls, authorName }: { urls: string[]; authorName: string }
         </>
       )}
 
-      {open && <Lightbox images={urls} index={index} alt={alt} onIndexChange={setIndex} onClose={() => setOpen(false)} />}
+      {open && (
+        <Lightbox images={urls} index={index} alt={alt} onIndexChange={setIndex} onClose={() => setOpen(false)} />
+      )}
     </div>
   );
 }
@@ -278,7 +391,13 @@ function ShareButton({ post }: { post: Post }) {
 
   return (
     <div className={styles.shareWrapper} ref={menu}>
-      <button type="button" className={styles.iconButton} aria-label="Compartilhar" aria-expanded={open} onClick={share}>
+      <button
+        type="button"
+        className={styles.iconButton}
+        aria-label="Compartilhar"
+        aria-expanded={open}
+        onClick={share}
+      >
         <ShareIcon size={20} />
       </button>
       {open && (
@@ -391,7 +510,11 @@ function Comments({ postId, onCountChange }: CommentsProps) {
 
   return (
     <section className={styles.comments} aria-label="Comentários">
-      {loaded && comments.length === 0 && <p className={styles.muted} style={{ margin: 0 }}>Nenhum comentário ainda.</p>}
+      {loaded && comments.length === 0 && (
+        <p className={styles.muted} style={{ margin: 0 }}>
+          Nenhum comentário ainda.
+        </p>
+      )}
 
       {comments.map((comment) => (
         <div key={comment.id} className={styles.comment}>
