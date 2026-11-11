@@ -837,3 +837,16 @@
 .edited {
   font-style: italic;
 }
+
+/* No celular, o "Apagar" do post vira só a lixeira (o texto continua para leitores de tela):
+   no próprio post são seis botões na fileira, e eles não cabem com o texto */
+@media (max-width: 480px) {
+  .actionLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}

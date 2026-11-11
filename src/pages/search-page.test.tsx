@@ -62,6 +62,7 @@ describe("Busca do cabeçalho", () => {
     expect(screen.getByRole("link", { name: /Shape Praça 8.0/ })).toHaveAttribute("href", "/market/produto/p1");
     expect(community.searchProfiles).toHaveBeenCalledWith("praca");
     expect(market.listProducts).toHaveBeenCalledWith({ search: "praca" });
+    expect(document.title).toBe("Busca: praca | Clutch");
   });
 
   it("visitante: só busca na loja e convida para entrar", async () => {

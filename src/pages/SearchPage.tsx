@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { communityService } from "@/services/community";
 import { marketService } from "@/services/market";
 import { spotService } from "@/services/spots";
@@ -39,6 +40,7 @@ const EMPTY: Results = { products: null, people: null, spots: null };
 export function SearchPage() {
   const [params] = useSearchParams();
   const query = (params.get("q") ?? "").trim();
+  usePageTitle(query ? `Busca: ${query}` : "Busca");
   const { user, loading: authLoading } = useAuth();
   const [results, setResults] = useState<Results>(EMPTY);
   const [loading, setLoading] = useState(false);

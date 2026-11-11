@@ -189,7 +189,7 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
             onClick={remove}
           >
             <TrashIcon size={18} />
-            Apagar
+            <span className={styles.actionLabel}>Apagar</span>
           </button>
         )}
         {!post.isMine && (
