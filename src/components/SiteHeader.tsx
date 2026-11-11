@@ -93,15 +93,15 @@ function SearchForm({ className }: { className: string }) {
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (query.trim()) navigate(`/market?busca=${encodeURIComponent(query.trim())}`);
+    if (query.trim()) navigate(`/busca?q=${encodeURIComponent(query.trim())}`);
   }
 
   return (
     <form role="search" className={[styles.search, className].join(" ")} onSubmit={handleSubmit}>
       <input
         type="search"
-        placeholder="buscar na loja..."
-        aria-label="Buscar na loja"
+        placeholder="buscar no clutch..."
+        aria-label="Buscar produtos, skatistas e spots"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

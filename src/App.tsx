@@ -31,6 +31,7 @@ const ChatPage = page(() => import("./pages/chat/ChatPage"), "ChatPage");
 const CommunityPage = page(() => import("./pages/community/CommunityPage"), "CommunityPage");
 const PostPage = page(() => import("./pages/community/PostPage"), "PostPage");
 const ProfilePage = page(() => import("./pages/community/ProfilePage"), "ProfilePage");
+const SearchPage = page(() => import("./pages/SearchPage"), "SearchPage");
 const SavedPage = page(() => import("./pages/community/SavedPage"), "SavedPage");
 const CartPage = page(() => import("./pages/market/CartPage"), "CartPage");
 const CheckoutPage = page(() => import("./pages/market/CheckoutPage"), "CheckoutPage");
@@ -141,6 +142,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/busca" element={<SearchPage />} />
         <Route path="/termos" element={<TermsPage />} />
         <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
         <Route path="/privacidade" element={<PrivacyPage />} />
