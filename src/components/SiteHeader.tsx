@@ -100,7 +100,7 @@ function SearchForm({ className }: { className: string }) {
     <form role="search" className={[styles.search, className].join(" ")} onSubmit={handleSubmit}>
       <input
         type="search"
-        placeholder="buscar no clutch..."
+        placeholder="buscar..."
         aria-label="Buscar produtos, skatistas e spots"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
