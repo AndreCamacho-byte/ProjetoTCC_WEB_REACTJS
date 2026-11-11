@@ -335,19 +335,26 @@
   padding: 0 20px;
   border: none;
   border-radius: var(--radius-md);
-  background: var(--brand-ink);
+  background: var(--brand-red);
   color: var(--brand-offwhite);
   font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
 }
 
+/* Mesmo padrão do site todo: principal vermelho, perigo com contorno vermelho */
+.primary:hover:not(:disabled) {
+  background: var(--brand-red-hover);
+}
+
 .danger {
-  background: var(--brand-red);
+  border: 1.5px solid var(--color-error);
+  background: transparent;
+  color: var(--color-error);
 }
 
 .danger:hover:not(:disabled) {
-  background: var(--brand-red-hover);
+  background: var(--color-error-bg);
 }
 
 .primary:disabled,

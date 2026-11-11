@@ -7,14 +7,12 @@
 
 .button {
   height: 44px;
-  border: 1.5px solid var(--brand-wine);
-  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--brand-ink);
+  border-radius: var(--radius-md);
   background: transparent;
-  color: var(--brand-wine);
-  font-size: 0.8125rem;
+  color: var(--brand-ink);
+  font-size: 0.9375rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
   cursor: pointer;
   transition: background-color 0.15s;
 }

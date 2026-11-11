@@ -213,14 +213,15 @@
   transition: background-color 0.15s;
 }
 
+/* Mesmo padrão do site todo: principal vermelho, secundário com contorno, perigo com contorno vermelho */
 .primary {
   border: none;
-  background: var(--brand-ink);
+  background: var(--brand-red);
   color: var(--brand-offwhite);
 }
 
 .primary:hover:not(:disabled) {
-  background: #3a3a3c;
+  background: var(--brand-red-hover);
 }
 
 .secondary {
@@ -234,13 +235,13 @@
 }
 
 .danger {
-  border: none;
-  background: var(--brand-red);
-  color: var(--brand-offwhite);
+  border: 1.5px solid var(--color-error);
+  background: transparent;
+  color: var(--color-error);
 }
 
 .danger:hover:not(:disabled) {
-  background: var(--brand-red-hover);
+  background: var(--color-error-bg);
 }
 
 .primary:disabled,

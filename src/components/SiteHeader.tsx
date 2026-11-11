@@ -25,7 +25,8 @@ export function SiteHeader() {
   // Fecha o menu do celular ao trocar de página
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
-  // A busca cresce para a esquerda até perto do último link do menu (Eventos).
+  // A busca cresce para a esquerda até perto do último link do menu (Eventos), sem encostar nele:
+  // fica uma folga para a sombra e o contorno da barra aberta, e ela não passa de SEARCH_MAX.
   // A largura depende do espaço livre, que muda com o tamanho da janela: por isso é medida
   // ao abrir a página e a cada mudança de tamanho, e fica pronta antes de o mouse chegar
   // (assim a animação já começa com o destino certo).
@@ -33,8 +34,8 @@ export function SiteHeader() {
     const slot = searchSlotRef.current;
     const lastLink = navRef.current?.querySelector("a:last-of-type");
     if (!slot || !lastLink) return;
-    const room = slot.getBoundingClientRect().right - lastLink.getBoundingClientRect().right - 24;
-    slot.style.setProperty("--search-open", `${Math.max(room, slot.offsetWidth)}px`);
+    const room = slot.getBoundingClientRect().right - lastLink.getBoundingClientRect().right - SEARCH_GAP;
+    slot.style.setProperty("--search-open", `${Math.max(Math.min(room, SEARCH_MAX), slot.offsetWidth)}px`);
   }, []);
 
   useEffect(() => {
@@ -42,7 +43,13 @@ export function SiteHeader() {
     // As fontes mudam a largura do menu quando terminam de carregar
     document.fonts?.ready.then(measureSearch);
     window.addEventListener("resize", measureSearch);
-    return () => window.removeEventListener("resize", measureSearch);
+    // Os ícones do chat e do carrinho só aparecem depois do login e empurram a busca para a esquerda
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureSearch);
+    if (observer && searchSlotRef.current?.parentElement) observer.observe(searchSlotRef.current.parentElement);
+    return () => {
+      window.removeEventListener("resize", measureSearch);
+      observer?.disconnect();
+    };
   }, [measureSearch]);
 
   return (
@@ -86,6 +93,10 @@ export function SiteHeader() {
     </header>
   );
 }
+
+// Folga entre a busca aberta e o "Eventos", e a largura máxima da busca aberta
+const SEARCH_GAP = 48;
+const SEARCH_MAX = 340;
 
 function SearchForm({ className }: { className: string }) {
   const navigate = useNavigate();
