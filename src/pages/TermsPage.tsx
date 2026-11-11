@@ -4,7 +4,7 @@ import { MIN_AGE } from "@/utils/age";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "16 de outubro de 2026";
+const LAST_UPDATE = "11 de novembro de 2026";
 
 // Termos de Uso: as regras de convivência e o que o Clutch é (e não é).
 // Ao mudar as regras do site, atualize esta página e a data acima.
@@ -28,7 +28,7 @@ export function TermsPage() {
         <h2>1. O que é o Clutch</h2>
         <p>
           O Clutch é uma rede social para skatistas, criada como Trabalho de Conclusão de Curso. Ele reúne uma
-          comunidade para postar e conversar, uma loja de streetwear e, em breve, spots e encontros no mapa. Por ser
+          comunidade para postar e conversar, uma loja de streetwear e spots e encontros no mapa. Por ser
           um projeto acadêmico em fase de testes, o site pode ficar fora do ar, mudar ou ter funções removidas.
         </p>
       </section>

@@ -21,6 +21,7 @@ import { makeUser, renderAt } from "@/test/helpers";
 import type { User } from "@/types/user";
 import { AccountSettingsPage } from "./AccountSettingsPage";
 import { HomePage } from "./HomePage";
+import { AboutPage } from "./AboutPage";
 import { NotFoundPage } from "./NotFoundPage";
 
 const service = vi.mocked(accountService);
@@ -155,5 +156,17 @@ describe("Configurações: trocar senha", () => {
 
   it("deixa a aba do navegador com o nome da página", () => {
     expect(document.title).toBe("Configurações | Clutch");
+  });
+});
+
+describe("Sobre nós", () => {
+  it("explica o Clutch e leva para as áreas do site", () => {
+    renderAt(<AboutPage />, { path: "/sobre" });
+
+    expect(screen.getByRole("heading", { level: 1, name: "Feito por quem anda de skate" })).toBeInTheDocument();
+    expect(document.title).toBe("Sobre nós | Clutch");
+    expect(screen.getByRole("link", { name: "mapa" })).toHaveAttribute("href", "/explorar");
+    expect(screen.getByRole("link", { name: "Termos de Uso" })).toHaveAttribute("href", "/termos");
+    expect(screen.queryByText(/em breve/i)).not.toBeInTheDocument();
   });
 });

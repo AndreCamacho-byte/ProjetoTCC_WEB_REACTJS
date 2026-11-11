@@ -21,6 +21,7 @@ import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 const page = <K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) =>
   lazy(() => load().then((module) => ({ default: module[name] })));
 
+const AboutPage = page(() => import("./pages/AboutPage"), "AboutPage");
 const AccountSettingsPage = page(() => import("./pages/AccountSettingsPage"), "AccountSettingsPage");
 const AdminOrdersPage = page(() => import("./pages/AdminOrdersPage"), "AdminOrdersPage");
 const AdminProductsPage = page(() => import("./pages/AdminProductsPage"), "AdminProductsPage");
@@ -144,7 +145,7 @@ function App() {
         />
         <Route path="/busca" element={<SearchPage />} />
         <Route path="/termos" element={<TermsPage />} />
-        <Route path="/sobre" element={<ComingSoonPage title="Sobre nós" />} />
+        <Route path="/sobre" element={<AboutPage />} />
         <Route path="/privacidade" element={<PrivacyPage />} />
         {/* Qualquer endereço que não existe */}
         <Route path="*" element={<NotFoundPage />} />
