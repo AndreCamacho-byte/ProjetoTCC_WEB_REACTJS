@@ -16,6 +16,8 @@ import {
 } from "@/components/icons";
 import { Lightbox } from "@/components/Lightbox";
 import { ReportDialog } from "@/components/ReportDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { useLoginGate } from "@/hooks/useLoginGate";
 import { chatService } from "@/services/chat";
 import { FriendsDialog } from "../chat/FriendsDialog";
 import { communityService } from "@/services/community";
@@ -26,7 +28,7 @@ import styles from "./Community.module.css";
 
 export const MAX_COMMENT_LENGTH = 300;
 
-// Endereço do post para compartilhar (quem abrir precisa entrar na conta para ver)
+// Endereço do post para compartilhar (abre mesmo para quem não tem conta)
 export const postLink = (id: string) => `${window.location.origin}/comunidade/post/${id}`;
 
 // Nome com link para o perfil, @ e nível de skate
@@ -60,6 +62,7 @@ type Props = {
 };
 
 export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
+  const needsLogin = useLoginGate();
   const [post, setPost] = useState(initial);
   const [showComments, setShowComments] = useState(false);
   const [error, setError] = useState("");
@@ -68,6 +71,7 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
   const [editing, setEditing] = useState(false);
 
   async function toggleLike() {
+    if (needsLogin()) return;
     // Muda na tela na hora e confirma com o servidor; se der erro, volta como estava
     const before = post;
     setPost({
@@ -85,6 +89,7 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
   }
 
   async function toggleSave() {
+    if (needsLogin()) return;
     const before = post;
     setPost({ ...post, savedByMe: !post.savedByMe });
     try {
@@ -198,7 +203,7 @@ export function PostCard({ post: initial, onDeleted, onUnsaved }: Props) {
             className={`${styles.iconButton} ${post.canDelete ? "" : styles.deleteButton}`}
             aria-label="Denunciar post"
             title="Denunciar"
-            onClick={() => setReporting(true)}
+            onClick={() => !needsLogin() && setReporting(true)}
           >
             <FlagIcon size={18} />
           </button>
@@ -347,6 +352,7 @@ function PostPhotos({ urls, authorName }: { urls: string[]; authorName: string }
 // Compartilhar: enviar para amigos pelo chat do Clutch ou para fora (menu do aparelho no celular,
 // copiar o link ou mandar pelo WhatsApp)
 function ShareButton({ post }: { post: Post }) {
+  const needsLogin = useLoginGate();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [toFriends, setToFriends] = useState(false);
@@ -408,7 +414,7 @@ function ShareButton({ post }: { post: Post }) {
             className={styles.shareItem}
             onClick={() => {
               setOpen(false);
-              setToFriends(true);
+              if (!needsLogin()) setToFriends(true);
             }}
           >
             <ChatIcon size={18} />
@@ -454,6 +460,8 @@ function ShareButton({ post }: { post: Post }) {
 type CommentsProps = { postId: string; onCountChange: (delta: number) => void };
 
 function Comments({ postId, onCountChange }: CommentsProps) {
+  const { user } = useAuth();
+  const needsLogin = useLoginGate();
   const [comments, setComments] = useState<Comment[]>([]);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -544,7 +552,7 @@ function Comments({ postId, onCountChange }: CommentsProps) {
               className={styles.iconButton}
               aria-label={`Denunciar comentário de ${comment.author.name}`}
               title="Denunciar"
-              onClick={() => setReported(comment)}
+              onClick={() => !needsLogin() && setReported(comment)}
             >
               <FlagIcon size={16} />
             </button>
@@ -573,6 +581,12 @@ function Comments({ postId, onCountChange }: CommentsProps) {
         </p>
       )}
 
+      {!user && (
+        <button type="button" className={styles.secondary} onClick={needsLogin}>
+          Entrar para comentar
+        </button>
+      )}
+      {user && (
       <form className={styles.commentForm} onSubmit={handleSubmit}>
         <input
           aria-label="Escreva um comentário"
@@ -585,6 +599,7 @@ function Comments({ postId, onCountChange }: CommentsProps) {
           Enviar
         </button>
       </form>
+      )}
     </section>
   );
 }

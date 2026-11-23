@@ -2,6 +2,7 @@ import { useCallback, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Avatar } from "@/components/Avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useLoginGate } from "@/hooks/useLoginGate";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import { communityService, type Feed } from "@/services/community";
 import type { Author, Post } from "@/types/community";
@@ -16,18 +17,20 @@ const TABS: { value: Feed; label: string }[] = [
   { value: "following", label: "Seguindo" },
 ];
 
-// Feed da comunidade. Só para quem está logado; visitantes veem um convite.
+// Feed da comunidade. Visitantes leem tudo; para postar, curtir ou seguir, vão para o login.
 export function CommunityPage() {
   usePageTitle("Comunidade");
 
   const { user, loading } = useAuth();
+  const needsLogin = useLoginGate();
   const [feed, setFeed] = useState<Feed>("all");
   const [newPost, setNewPost] = useState<Post | null>(null);
 
-  const load = useCallback((cursor?: string) => communityService.getFeed(feed, cursor), [feed]);
+  // Ao entrar ou sair da conta, recarrega para mostrar as curtidas e os salvos certos
+  const userId = user?.id;
+  const load = useCallback((cursor?: string) => communityService.getFeed(feed, cursor), [feed, userId]);
 
   if (loading) return null;
-  if (!user) return <Invite />;
 
   return (
     <div className={styles.page}>
@@ -38,7 +41,7 @@ export function CommunityPage() {
         </header>
 
         <div className={styles.main}>
-          <Composer user={user} onPosted={setNewPost} />
+          {user ? <Composer user={user} onPosted={setNewPost} /> : <Invite />}
 
           <div className={styles.tabs} role="tablist" aria-label="Qual feed mostrar">
             {TABS.map((tab) => (
@@ -48,7 +51,10 @@ export function CommunityPage() {
                 role="tab"
                 aria-selected={feed === tab.value}
                 className={feed === tab.value ? styles.tabActive : styles.tab}
-                onClick={() => setFeed(tab.value)}
+                onClick={() => {
+                  if (tab.value === "following" && needsLogin()) return;
+                  setFeed(tab.value);
+                }}
               >
                 {tab.label}
               </button>
@@ -75,13 +81,14 @@ export function CommunityPage() {
 }
 
 function PeopleSearch() {
+  const needsLogin = useLoginGate();
   const [text, setText] = useState("");
   const [people, setPeople] = useState<Author[] | null>(null);
   const [error, setError] = useState("");
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || needsLogin()) return;
     setError("");
     try {
       setPeople(await communityService.searchProfiles(text.trim()));
@@ -140,13 +147,9 @@ function PeopleSearch() {
 
 function Invite() {
   return (
-    <section className={styles.invite}>
-      <p className={styles.kicker}>Comunidade</p>
-      <h1 className={styles.title}>A galera do skate está aqui</h1>
-      <p className={styles.muted}>
-        Poste suas sessões, curta e comente as manobras dos outros e siga quem anda nos mesmos picos que você. Entre
-        ou crie uma conta para ver o feed.
-      </p>
+    <section className={styles.card}>
+      <h2>Faça parte da comunidade</h2>
+      <p className={styles.muted}>Crie uma conta para postar, curtir, comentar e seguir outros skatistas.</p>
       <div className={styles.inviteActions}>
         <Link to="/login" state={{ from: "/comunidade" }} className={styles.primary}>
           Entrar

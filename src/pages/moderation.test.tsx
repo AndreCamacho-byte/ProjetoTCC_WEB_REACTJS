@@ -2,6 +2,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/hooks/useAuth", () => ({ useAuth: vi.fn() }));
 vi.mock("@/services/moderation", () => ({
   moderationService: {
     report: vi.fn(),
@@ -22,10 +23,11 @@ vi.mock("@/services/community", () => ({
 }));
 vi.mock("@/services/admin", () => ({ adminService: { updateUser: vi.fn() } }));
 
+import { useAuth } from "@/hooks/useAuth";
 import { communityService } from "@/services/community";
 import { adminService } from "@/services/admin";
 import { moderationService, type Report } from "@/services/moderation";
-import { renderAt } from "@/test/helpers";
+import { makeUser, renderAt } from "@/test/helpers";
 import type { Post, Profile } from "@/types/community";
 import { AdminReportsPage } from "./AdminReportsPage";
 import { PostCard } from "./community/PostCard";
@@ -68,6 +70,7 @@ const profile: Profile = {
 };
 
 beforeEach(() => {
+  vi.mocked(useAuth).mockReturnValue({ user: makeUser(), loading: false, signIn: vi.fn(), signOut: vi.fn(), updateUser: vi.fn() });
   vi.mocked(communityService.getProfilePosts).mockResolvedValue({ posts: [], nextCursor: null });
   vi.spyOn(window, "confirm").mockReturnValue(true);
 });

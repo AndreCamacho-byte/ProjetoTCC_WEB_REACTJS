@@ -101,13 +101,25 @@ beforeEach(() => {
 });
 
 describe("Comunidade", () => {
-  it("convida o visitante a entrar", () => {
+  it("mostra o feed ao visitante, com convite no lugar de postar", async () => {
     loginAs(null);
+    service.getFeed.mockResolvedValue(page([makePost()]));
     renderAt(<CommunityPage />, { path: "/comunidade" });
 
-    expect(screen.getByRole("heading", { name: "A galera do skate está aqui" })).toBeInTheDocument();
+    expect(await screen.findByText("Sessão de hoje na praça")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Faça parte da comunidade" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Entrar" })).toHaveAttribute("href", "/login");
-    expect(service.getFeed).not.toHaveBeenCalled();
+  });
+
+  it("não curte como visitante: leva para o login", async () => {
+    loginAs(null);
+    service.getFeed.mockResolvedValue(page([makePost()]));
+    renderAt(<CommunityPage />, { path: "/comunidade" });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Curtir" }));
+
+    expect(service.like).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.queryByText("Sessão de hoje na praça")).not.toBeInTheDocument());
   });
 
   it("mostra o feed com autor, nível, curtidas e comentários", async () => {

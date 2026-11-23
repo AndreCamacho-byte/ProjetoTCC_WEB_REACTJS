@@ -4,7 +4,7 @@ import { usePageTitle } from "@/hooks/usePageTitle";
 import styles from "./PrivacyPage.module.css";
 
 const CONTACT_EMAIL = "clutchenterprisesbr@gmail.com";
-const LAST_UPDATE = "6 de novembro de 2026";
+const LAST_UPDATE = "22 de novembro de 2026";
 
 // Política de Privacidade. O texto descreve o que o site faz de verdade com os dados:
 // ao mudar o que é coletado (ex.: localização nos spots, endereço no marketplace),
@@ -168,9 +168,10 @@ export function PrivacyPage() {
           veem os pedidos do Market, com os itens e o endereço de entrega, para acompanhar cada pedido.
         </p>
         <p>
-          Na Comunidade, outras pessoas com conta no Clutch veem o seu nome, @, foto de perfil, bio, nível de skate,
-          os seus posts e comentários e quantas pessoas você segue e te seguem. O seu email e a sua idade nunca
-          aparecem para outros usuários. Quem não tem conta não vê a Comunidade.
+          Os posts e comentários da Comunidade são públicos: qualquer pessoa, mesmo sem conta, vê o texto, as fotos e
+          o nome, @, foto de perfil e nível de skate de quem publicou. A página de perfil completa, com a bio e
+          quantas pessoas você segue e te seguem, aparece só para quem tem conta. O seu email e a sua idade nunca
+          aparecem para outras pessoas.
         </p>
         <p>
           As mensagens do chat só aparecem para as duas pessoas da conversa. A equipe do Clutch não lê as conversas no
