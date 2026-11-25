@@ -113,11 +113,7 @@ function App() {
         />
         <Route
           path="/comunidade/post/:id"
-          element={
-            <PrivateRoute>
-              <PostPage />
-            </PrivateRoute>
-          }
+          element={<PostPage />}
         />
         <Route
           path="/salvos"
